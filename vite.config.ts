@@ -28,4 +28,11 @@ export default defineConfig({
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
         },
     },
+    server: {
+        host: 'poscrispyking.com',
+        port: 5173,
+        strictPort: true,
+        origin: 'http://poscrispyking.com:5173',
+        cors: true,
+    },
 });
