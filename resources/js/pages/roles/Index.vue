@@ -9,8 +9,14 @@
             <!-- Roles Table -->
             <div class="mr-4 flex justify-end">
                 <button
-                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" @click="handleOpenModal()">Create
+                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                    @click="handleOpenModal()">Create
                     Role
+                </button>
+                <button
+                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                    @click="handleOpenPermissionModal()">Create
+                    Permission
                 </button>
             </div>
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -30,13 +36,22 @@
                                 role.name }}</td>
                             <td class="px-6 py-4">
                                 <ul>
-                                    <li v-for="permission in role.permissions" :key="permission.id">
-                                        {{ permission.name }}
+                                    <li v-for="(permission, index) in role.permissions" :key="index">
+                                        {{ permission }}
                                     </li>
                                 </ul>
                             </td>
                             <td class="px-6 py-4">
-                                <a :href="route('roles.index')" class="text-blue-600 hover:text-blue-900">Edit</a>
+                                <button
+                                    class="text-white bg-yellow-500 hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-300 font-medium rounded px-3 py-1 mr-2"
+                                    @click="fetchRoleDetails(role.id)">
+                                    Edit
+                                </button>
+                                <button
+                                    class="text-white bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-300 font-medium rounded px-3 py-1"
+                                    @click="handleDeleteRole(role.id)">
+                                    Delete
+                                </button>
                             </td>
                         </tr>
                     </tbody>
@@ -44,43 +59,210 @@
             </div>
         </div>
 
-        <div ref="AddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-300 bg-opacity-20 hidden">
-            <div class="bg-white p-6 rounded shadow-lg w-1/3">
-            <h2 class="text-xl font-bold mb-4">Create Role</h2>
-            <form @submit.prevent="submit">
-                <div class="mb-4">
-                <label for="role-name" class="block text-gray-700">Role Name</label>
-                <input type="text" id="role-name" v-model="newRole.name"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                    required />
+        <!-- Modal Background -->
+        <div ref="AddModal" tabindex="-1" aria-hidden="true"
+            class="hidden fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm overflow-y-auto overflow-x-hidden w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative p-4 w-full max-w-2xl max-h-full flex items-center justify-center mx-auto my-auto">
+                <!-- Modal content -->
+                <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+                    <!-- Modal header -->
+                    <div
+                        class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Create Role</h2>
+                        <button @click="handleCloseModal" type="button"
+                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                    </div>
+                    <!-- Modal body -->
+                    <form ref="formRef" @submit.prevent="submitRole">
+                        <div class="p-4 md:p-5 space-y-4">
+                            <div class="mb-4">
+                                <label for="role-name"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role Name</label>
+                                <input type="text" id="role-name" v-model="newRole.name"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
+                                    required />
+                            </div>
+                            <div class="mb-4">
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Permissions</label>
+                                <div class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+                                    <div v-for="permission in permissions" :key="permission.id"
+                                        class="flex items-center m-3">
+                                        <input type="checkbox" :id="'perm-' + permission.id" :value="permission.id"
+                                            v-model="newRole.permissions"
+                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white" />
+                                        <label :for="'perm-' + permission.id"
+                                            class="ml-2 text-gray-700 dark:text-gray-300">{{ permission.name }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal footer -->
+                        <div
+                            class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                            <button type="submit"
+                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create</button>
+                            <button type="button" @click="handleCloseModal"
+                                class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancel</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="mb-4">
-                <label for="permissions" class="block text-gray-700">Permissions</label>
-                <select id="permissions" v-model="newRole.permissions" multiple
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
-                    <option v-for="permission in permissions" :key="permission.id" :value="permission.id">
-                    {{ permission.name }}
-                    </option>
-                </select>
-                </div>
-                <div class="flex justify-end">
-                <button type="button" @click="handleCloseModal()"
-                    class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2">Cancel</button>
-                <button type="submit"
-                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Create</button>
-                </div>
-            </form>
             </div>
         </div>
-        </AppLayout>
+
+        <!-- Edit Modal -->
+        <div ref="EditModal" tabindex="-1" aria-hidden="true"
+            class="hidden fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm overflow-y-auto overflow-x-hidden w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative p-4 w-full max-w-2xl max-h-full flex items-center justify-center mx-auto my-auto">
+                <!-- Modal content -->
+                <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+                    <!-- Modal header -->
+                    <div
+                        class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Edit Role</h2>
+                        <button @click="handleCloseEditModal" type="button"
+                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                    </div>
+                    <!-- Modal body -->
+                    <form ref="formRef" @submit.prevent="submitRole">
+                        <div class="p-4 md:p-5 space-y-4">
+                            <input type="hidden" id="role-id" v-model="newRole.id" />
+                            <div class="mb-4">
+                                <label for="role-name"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role Name</label>
+                                <input type="text" id="role-name" v-model="newRole.name"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
+                                    required />
+                            </div>
+                            <div class="mb-4">
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Permissions</label>
+                                <div class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+                                    <div v-for="permission in permissions" :key="permission.id"
+                                        class="flex items-center m-3">
+                                        <input type="checkbox" :id="'perm-' + permission.id" :value="permission.id"
+                                            v-model="newRole.permissions"
+                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white" />
+                                        <label :for="'perm-' + permission.id"
+                                            class="ml-2 text-gray-700 dark:text-gray-300">{{ permission.name }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal footer -->
+                        <div
+                            class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                            <button type="submit"
+                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create</button>
+                            <button type="button" @click="handleCloseEditModal"
+                                class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Permission Modal -->
+        <div ref="AddPermissionModal" tabindex="-1" aria-hidden="true"
+            class="hidden fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm  overflow-y-auto overflow-x-hidden w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative p-4 w-full max-w-2xl max-h-full flex items-center justify-center mx-auto my-auto">
+                <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+                    <div
+                        class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Create Permission</h2>
+                        <button @click="handleClosePermissionModal" type="button"
+                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                    </div>
+                    <form ref="permissionFormRef" @submit.prevent="submitPermission">
+                        <div class="p-4 md:p-5 space-y-4">
+                            <div class="mb-4">
+                                <label for="permission-name"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Permission
+                                    Name</label>
+                                <input type="text" id="permission-name" v-model="newPermission.name"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
+                                    required />
+                            </div>
+                        </div>
+                        <div
+                            class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                            <button type="submit"
+                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create</button>
+                            <button type="button" @click="handleClosePermissionModal"
+                                class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </AppLayout>
 </template>
 
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { defineProps, ref } from 'vue';
+import { defineProps, ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useNotify } from '@/composables/useNotify';
+import { TrendingUpDown } from 'lucide-vue-next';
+
+const notify = useNotify();
+const roles = ref<Array<{ id: string; name: string; permissions: string[] }>>([]);
+const permissions = ref<Array<{ id: number; name: string }>>([]);
+
+const fetchTableData = async () => {
+    try {
+        const response = await axios.get(route('roles.list'));
+        if (response.data.result === true) {
+            roles.value = response.data.data;
+        }
+    } catch (error) {
+        console.error('Error fetching roles:', error);
+    }
+};
+
+const fetchPermissions = async () => {
+    try {
+        const response = await axios.get(route('permissions.list'));
+        if (response.data.result === true) {
+            permissions.value = response.data.data;
+        }
+    } catch (error) {
+        console.error('Error fetching permissions:', error);
+    }
+};
+
+const reload = () => {
+    fetchTableData();
+    fetchPermissions();
+}
+
+onMounted(() => {
+    fetchTableData();
+    fetchPermissions();
+});
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -89,21 +271,14 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-defineProps<{
-    roles: Array<{
-        id: number;
-        name: string;
-        permissions: Array<{ id: number; name: string }>;
-    }>;
-    permissions: Array<{ id: number; name: string }>;
-}>();
-
 const visible = ref(false);
 
-const newRole = ref({
+const newRole = ref<{ id?: string; name: string; permissions: string[] }>({
+    id: '',
     name: '',
     permissions: [],
 });
+
 const AddModal = ref<HTMLElement | null>(null);
 
 const handleOpenModal = () => {
@@ -119,22 +294,121 @@ const handleCloseModal = () => {
         AddModal.value.classList.add('hidden');
     }
 };
-    
-const submit = async () => {
+const formRef = ref<HTMLFormElement | null>(null);
+
+const submitRole = async () => {
     const route_url = route('roles.store');
-
+    const payload = {
+        id: newRole.value.id,
+        name: newRole.value.name,
+        permissions: newRole.value.permissions.map((id) => ({ id })),
+    };
     try {
-        const response = await axios.post(route_url, newRole.value);
+        const response = await axios.post(route_url, payload);
 
-        if (response.status === 200) {
+        if (response.data.result == true) {
             console.log('Role created successfully:', response.data);
-            handleCloseModal(); // Close the modal after successful creation
+            if (formRef.value) formRef.value.reset();
+            newRole.value = { name: '', permissions: [] };
+            handleCloseModal();
+            handleCloseEditModal();
+            reload();
+            notify(response.data.message, "success");
+        }
+    } catch (error) {
+        notify("Error creating role", "error");
+        console.error('Error:', error);
+    }
+};
+const EditModal = ref<HTMLElement | null>(null);
+
+const handleOpenEditModal = () => {
+    visible.value = true;
+    if (EditModal.value) {
+        EditModal.value.classList.remove('hidden');
+    }
+};
+
+const handleCloseEditModal = () => {
+    visible.value = false;
+    if (EditModal.value) {
+        EditModal.value.classList.add('hidden');
+    }
+};
+
+const fetchRoleDetails = async (roleId: string) => {
+    const route_url = route('roles.edit', roleId);
+    try {
+        const response = await axios.get(route_url);
+        if (response.data.result === true) {
+            // Set role data for editing
+            newRole.value = {
+                id: response.data.data.id,
+                name: response.data.data.name,
+                permissions: response.data.data.permissions
+                    .filter((p: any) => p.assigned)
+                    .map((p: any) => p.id),
+            };
+            // Optionally update permissions list if needed
+            permissions.value = response.data.data.permissions.map((p: any) => ({
+                id: p.id,
+                name: p.name,
+            }));
+            handleOpenEditModal();
+        }
+    } catch (error) {
+        notify("Error fetching role details", "error");
+        console.error('Error:', error);
+    }
+};
+
+
+const handleDeleteRole = async (roleId: string) => {
+    const route_url = route('roles.destroy', roleId);
+    if (confirm('Are you sure you want to delete this role?')) {
+        try {
+            const response = await axios.post(route_url);
+            if (response.status === 200) {
+                notify("Role deleted successfully", "success");
+                reload();
+            }
+        } catch (error) {
+            notify("Error deleting role", "error");
+            console.error('Error:', error);
+        }
+    }
+};
+
+const AddPermissionModal = ref<HTMLElement | null>(null);
+const permissionFormRef = ref<HTMLFormElement | null>(null);
+const newPermission = ref({ name: '' });
+
+const handleOpenPermissionModal = () => {
+    if (AddPermissionModal.value) {
+        AddPermissionModal.value.classList.remove('hidden');
+    }
+};
+const handleClosePermissionModal = () => {
+    if (AddPermissionModal.value) {
+        AddPermissionModal.value.classList.add('hidden');
+    }
+};
+
+const submitPermission = async () => {
+    const route_url = route('permissions.store');
+    try {
+        const response = await axios.post(route_url, newPermission.value);
+        if (response.data.result == true) {
+            if (permissionFormRef.value) permissionFormRef.value.reset();
+            newPermission.value = { name: '' };
+            handleClosePermissionModal();
+            notify("Permission created successfully", "success");
         } else {
-            console.error('Error creating role:', response.data);
+            notify(response.data.message, "error");
+            console.error('Error creating permission:', response.data);
         }
     } catch (error) {
         console.error('Error:', error);
     }
-}
-
+};
 </script>
