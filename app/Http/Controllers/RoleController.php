@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
+use function PHPUnit\Framework\isEmpty;
+
 class RoleController extends Controller
 {
     public function index()
@@ -17,33 +19,94 @@ class RoleController extends Controller
         ]);
     }
 
+    public function list(Request $request)
+    {
+        $roles = Role::with('permissions')->get()->map(function ($role) {
+            return [
+                'id' => encrypt($role->id),
+                'name' => $role->name,
+                'permissions' => $role->permissions->pluck('name'),
+            ];
+        });
+
+        return response()->json([
+            "result" => true,
+            "data" => $roles,
+        ]);
+    }
+
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name',
-            'permissions' => 'array',
-        ]);
+        if ($request->has('id')) {
+            $id = decrypt($request->input('id'));
+            $role = Role::findOrFail($id);
+            $role->name = $request->input('name');
+            $permissionIds = collect($request->input('permissions') ?? [])
+                ->pluck('id')
+                ->map(function ($id) {
+                    return decrypt($id);
+                })
+                ->all();
+            $role->syncPermissions($permissionIds);
+            $role->save();
 
-        $role = Role::create(['name' => $request->name]);
-        $role->syncPermissions($request->permissions ?? []);
-        return redirect()->route('roles.index')->with('success', 'Role created.');
+            return response()->json([
+                'result' => true,
+                'message' => 'Role updated successfully.',
+            ]);
+        } else {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255|unique:roles,name',
+                'permissions' => 'array',
+            ]);
+
+            $permissionIds = collect($validated['permissions'] ?? [])
+                ->pluck('id')
+                ->map(function ($id) {
+                    return decrypt($id);
+                })
+                ->all();
+
+            $role = Role::create(['name' => $validated['name']]);
+            $role->syncPermissions($permissionIds);
+
+            return response()->json([
+                'result' => true,
+                'message' => 'Role created successfully.',
+            ]);
+        }
     }
 
-    public function update(Request $request, Role $role)
+    public function edit($encryptedId)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
-            'permissions' => 'array',
-        ]);
+        $id = decrypt($encryptedId);
+        $role = Role::with('permissions')->findOrFail($id);
+        $permissions = Permission::all();
 
-        $role->update(['name' => $request->name]);
-        $role->syncPermissions($request->permissions ?? []);
-        return redirect()->route('roles.index')->with('success', 'Role updated.');
+        return response()->json([
+            'result' => true,
+            'message' => 'Role retrieved successfully.',
+            'data' => [
+                'id' => encrypt($role->id),
+                'name' => $role->name,
+                'permissions' => $permissions->map(function ($permission) use ($role) {
+                    return [
+                        'id' => encrypt($permission->id),
+                        'name' => $permission->name,
+                        'assigned' => $role->hasPermissionTo($permission),
+                    ];
+                }),
+            ],
+
+        ]);
     }
 
-    public function destroy(Role $role)
+
+    public function destroy($encryptedId)
     {
+        $id = decrypt($encryptedId);
+        $role = Role::findOrFail($id);
         $role->delete();
-        return redirect()->route('roles.index')->with('success', 'Role deleted.');
+        return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');
     }
 }
