@@ -2,31 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { Line, Bar } from 'vue-chartjs';
-import {
-    Chart as ChartJS,
-    Title,
-    Tooltip,
-    Legend,
-    LineElement,
-    BarElement,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-} from 'chart.js';
 
-ChartJS.register(
-    Title,
-    Tooltip,
-    Legend,
-    LineElement,
-    BarElement,
-    CategoryScale,
-    LinearScale,
-    PointElement
-);
-
-// Mock data for dashboard widgets
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -34,71 +10,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const stats = [
-    { label: 'Total Sales', value: '₱120,000', icon: '💰' },
-    { label: 'Orders Today', value: '85', icon: '🛒' },
-    { label: 'Customers', value: '1,230', icon: '👥' },
-];
-
-const topProducts = [
-    { name: 'Crispy Chicken', sold: 320 },
-    { name: 'Spicy Wings', sold: 210 },
-    { name: 'Burger Meal', sold: 180 },
-];
-
-const recentOrders = [
-    { id: 1001, customer: 'Juan Dela Cruz', total: '₱350', time: '10:15 AM' },
-    { id: 1002, customer: 'Maria Santos', total: '₱420', time: '10:22 AM' },
-    { id: 1003, customer: 'Pedro Reyes', total: '₱150', time: '10:30 AM' },
-];
-
-// Mock data for charts
-const salesTrendData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-        {
-            label: 'Sales (₱)',
-            data: [18000, 22000, 20000, 25000, 27000, 30000, 32000],
-            borderColor: '#22c55e',
-            backgroundColor: 'rgba(34,197,94,0.1)',
-            tension: 0.4,
-            fill: true,
-        },
-    ],
-};
-
-const salesTrendOptions = {
-    responsive: true,
-    plugins: {
-        legend: { display: false },
-        title: { display: true, text: 'Sales Trend (This Week)' },
-    },
-    scales: {
-        y: { beginAtZero: true },
-    },
-};
-
-const topProductsChartData = {
-    labels: topProducts.map(p => p.name),
-    datasets: [
-        {
-            label: 'Units Sold',
-            data: topProducts.map(p => p.sold),
-            backgroundColor: ['#fbbf24', '#f87171', '#60a5fa'],
-        },
-    ],
-};
-
-const topProductsChartOptions = {
-    responsive: true,
-    plugins: {
-        legend: { display: false },
-        title: { display: true, text: 'Top Products' },
-    },
-    scales: {
-        y: { beginAtZero: true },
-    },
-};
 </script>
 
 <template>
