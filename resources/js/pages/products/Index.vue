@@ -1,12 +1,12 @@
 <template>
 
-    <Head title="Roles" />
+    <Head title="Products" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6">
-            <h1 class="text-2xl font-bold">Roles</h1>
+            <h1 class="text-2xl font-bold">Products</h1>
 
-           <!-- Roles Table -->
+            <!-- Roles Table -->
             <div class="mr-4 mb-1 flex justify-end">
 
                 <div class="flex items-center gap-4 w-full max-w-lg">
@@ -21,15 +21,14 @@
                                         stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                                 </svg>
                             </div>
-                            <input type="search" id="default-search"
-                                v-model="search"
+                            <input type="search" id="default-search" v-model="search"
                                 class="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Search permissions..." />
                         </div>
                     </form>
                     <button
                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 whitespace-nowrap"
-                        @click="handleOpenModal()">Create Role
+                        @click="handleOpenModal()">Add Product
                     </button>
                 </div>
             </div>
@@ -38,71 +37,76 @@
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-300 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope="col" class="px-6 py-3">Role</th>
-                            <th scope="col" class="px-6 py-3">Permissions</th>
+                            <th scope="col" class="px-6 py-3">Product Name</th>
+                            <th scope="col" class="px-6 py-3">Product Code</th>
+                            <th scope="col" class="px-6 py-3">Price</th>
+                            <th scope="col" class="px-6 py-3">Quantity</th>
                             <th scope="col" class="px-6 py-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="role in roles.data" :key="role.id"
+                        <tr v-for="product in products.data" :key="product.product_id"
                             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                             <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{
-                                role.name }}</td>
-                            <td class="px-6 py-4">
-                                <ul>
-                                    <li v-for="(permission, index) in role.permissions" :key="index">
-                                        {{ permission }}
-                                    </li>
-                                </ul>
+                                product.product_name }}
                             </td>
+                            <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{
+                                product.product_code }}
+                            </td>
+                            <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{
+                                product.product_price }}
+                            </td>
+                            <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{
+                                product.product_quantity }}
+                            </td>
+                            
                             <td class="px-6 py-4">
                                 <button
                                     class="text-white bg-yellow-500 hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-300 font-medium rounded px-3 py-1 mr-2"
-                                    @click="fetchRoleDetails(role.id)">
+                                    @click="fetchUserDetails(user.id)">
                                     Edit
                                 </button>
                                 <button
                                     class="text-white bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-300 font-medium rounded px-3 py-1"
-                                    @click="handleDeleteRole(role.id)">
+                                    @click="handleDeleteUser(user.id)">
                                     Delete
                                 </button>
                             </td>
                         </tr>
                     </tbody>
-                    <tfoot v-if="roles.pagination">
+                    <tfoot v-if="users.pagination">
                         <tr>
                             <td colspan="1" class="px-6 py-4">
                                 <span class="text-sm text-gray-600">
-                                    Total: {{ roles.pagination.total }} roles
+                                    Total: {{ users.pagination.total }} users
                                 </span>
                             </td>
-                            <td colspan="2" class="px-6 py-4">
+                            <td colspan="3" class="px-6 py-4">
                                 <div class="flex justify-end items-center gap-2">
-                                    <button :disabled="roles.pagination.current_page === 1"
-                                        @click="fetchTableData(roles.pagination.current_page - 1)"
+                                    <button :disabled="users.pagination.current_page === 1"
+                                        @click="fetchTableData(users.pagination.current_page - 1)"
                                         class="px-2 py-1 rounded border bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
                                         aria-label="Previous page">
                                         &laquo;
                                     </button>
-                                    <template v-for="page in Math.min(roles.pagination.last_page, 5)" :key="page">
+                                    <template v-for="page in Math.min(users.pagination.last_page, 5)" :key="page">
                                         <button
-                                            v-if="page === 1 || page === roles.pagination.last_page || Math.abs(page - roles.pagination.current_page) <= 1"
+                                            v-if="page === 1 || page === users.pagination.last_page || Math.abs(page - users.pagination.current_page) <= 1"
                                             :class="[
                                                 'px-3 py-1 rounded border',
-                                                page === roles.pagination.current_page
+                                                page === users.pagination.current_page
                                                     ? 'bg-blue-600 text-white'
                                                     : 'bg-gray-200 hover:bg-gray-300'
                                             ]" @click="fetchTableData(page)"
-                                            :disabled="page === roles.pagination.current_page">
+                                            :disabled="page === users.pagination.current_page">
                                             {{ page }}
                                         </button>
                                         <span
-                                            v-else-if="page === roles.pagination.current_page - 2 || page === roles.pagination.current_page + 2"
+                                            v-else-if="page === users.pagination.current_page - 2 || page === users.pagination.current_page + 2"
                                             class="px-2">...</span>
                                     </template>
-                                    <button
-                                        :disabled="roles.pagination.current_page === roles.pagination.last_page"
-                                        @click="fetchTableData(roles.pagination.current_page + 1)"
+                                    <button :disabled="users.pagination.current_page === users.pagination.last_page"
+                                        @click="fetchTableData(users.pagination.current_page + 1)"
                                         class="px-2 py-1 rounded border bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
                                         aria-label="Next page">
                                         &raquo;
@@ -124,7 +128,7 @@
                     <!-- Modal header -->
                     <div
                         class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
-                        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Create Role</h2>
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Create Product</h2>
                         <button @click="handleCloseModal" type="button"
                             class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
                             <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -136,33 +140,59 @@
                         </button>
                     </div>
                     <!-- Modal body -->
-                    <form ref="formRef" @submit.prevent="submitRole">
-                        <div class="p-4 md:p-5 space-y-4">
+                    <form ref="formRef" @submit.prevent="submitProduct">
+                        <div class="p-4 md:p-5 space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="mb-4">
-                                <label for="role-name"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role Name</label>
-                                <input type="text" id="role-name" v-model="newRole.name"
+                                <label for="product-name"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product
+                                    Name</label>
+                                <input type="text" id="product-name" v-model="newProduct.product_name"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
                                     required />
                             </div>
                             <div class="mb-4">
-                                <label
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Permissions</label>
-                                <div class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto">
-                                    <div v-for="permission in permissions" :key="permission.id"
-                                        class="flex items-center m-3">
-                                        <input type="checkbox" :id="'perm-' + permission.id" :value="permission.id"
-                                            v-model="newRole.permissions"
-                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white" />
-                                        <label :for="'perm-' + permission.id"
-                                            class="ml-2 text-gray-700 dark:text-gray-300">{{ permission.name }}</label>
-                                    </div>
-                                </div>
+                                <label for="product-code"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product
+                                    Code</label>
+                                <input type="text" id="product-code" v-model="newProduct.product_code"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
+                                    required />
+                            </div>
+                            <div class="mb-4 md:col-span-2">
+                                <label for="product-description"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product
+                                    Description</label>
+                                <input type="text" id="product-description" v-model="newProduct.product_description"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
+                                    required />
+                            </div>
+                            <div class="mb-4">
+                                <label for="product-price"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product
+                                    Price</label>
+                                <input type="number" id="product-price" v-model="newProduct.product_price"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
+                                    required />
+                            </div>
+                            <div class="mb-4">
+                                <label for="product-quantity"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product
+                                    Quantity</label>
+                                <input type="number" id="product-quantity" v-model="newProduct.product_quantity"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
+                                    required />
+                            </div>
+                            <div class="mb-4 md:col-span-2">
+                                <label for="product-image"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product
+                                    Image</label>
+                                <input type="file" id="product-image" accept="image/*" @change="onImageChange"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white" />
                             </div>
                         </div>
                         <!-- Modal footer -->
                         <div
-                            class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                            class="flex items-center justify-end p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
                             <button type="submit"
                                 class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create</button>
                             <button type="button" @click="handleCloseModal"
@@ -174,15 +204,15 @@
         </div>
 
         <!-- Edit Modal -->
-        <div ref="EditModal" tabindex="-1" aria-hidden="true"
+        <!-- <div ref="EditModal" tabindex="-1" aria-hidden="true"
             class="hidden fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm overflow-y-auto overflow-x-hidden w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-            <div class="relative p-4 w-full max-w-2xl max-h-full flex items-center justify-center mx-auto my-auto">
-                <!-- Modal content -->
-                <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
-                    <!-- Modal header -->
-                    <div
+            <div class="relative p-4 w-full max-w-2xl max-h-full flex items-center justify-center mx-auto my-auto"> -->
+        <!-- Modal content -->
+        <!-- <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700"> -->
+        <!-- Modal header -->
+        <!-- <div
                         class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
-                        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Edit Role</h2>
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Edit User</h2>
                         <button @click="handleCloseEditModal" type="button"
                             class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
                             <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -192,35 +222,43 @@
                             </svg>
                             <span class="sr-only">Close modal</span>
                         </button>
-                    </div>
-                    <!-- Modal body -->
-                    <form ref="formRef" @submit.prevent="submitRole">
+                    </div> -->
+        <!-- Modal body -->
+        <!-- <form ref="formRef" @submit.prevent="submitUser">
                         <div class="p-4 md:p-5 space-y-4">
-                            <input type="hidden" id="role-id" v-model="newRole.id" />
+                            <input type="hidden" id="role-id" v-model="newUser.id" />
                             <div class="mb-4">
                                 <label for="role-name"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role Name</label>
-                                <input type="text" id="role-name" v-model="newRole.name"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">User
+                                    Name</label>
+                                <input type="text" id="role-name" v-model="newUser.name"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
+                                    required />
+                            </div>
+                            <div class="mb-4">
+                                <label for="role-name"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">User
+                                    Email</label>
+                                <input type="text" id="role-name" v-model="newUser.email"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
                                     required />
                             </div>
                             <div class="mb-4">
                                 <label
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Permissions</label>
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Roles</label>
                                 <div class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto">
-                                    <div v-for="permission in permissions" :key="permission.id"
-                                        class="flex items-center m-3">
-                                        <input type="checkbox" :id="'perm-' + permission.id" :value="permission.id"
-                                            v-model="newRole.permissions"
+                                    <div v-for="role in roles" :key="role.id" class="flex items-center m-3">
+                                        <input type="checkbox" :id="'perm-' + role.id" :value="role.id"
+                                            v-model="newUser.roles"
                                             class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white" />
-                                        <label :for="'perm-' + permission.id"
-                                            class="ml-2 text-gray-700 dark:text-gray-300">{{ permission.name }}</label>
+                                        <label :for="'perm-' + role.id" class="ml-2 text-gray-700 dark:text-gray-300">{{
+                                            role.name }}</label>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <!-- Modal footer -->
-                        <div
+                        </div> -->
+        <!-- Modal footer -->
+        <!-- <div
                             class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
                             <button type="submit"
                                 class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create</button>
@@ -230,7 +268,7 @@
                     </form>
                 </div>
             </div>
-        </div>
+        </div> -->
     </AppLayout>
 </template>
 
@@ -244,8 +282,8 @@ import { useNotify } from '@/composables/useNotify';
 import { TrendingUpDown } from 'lucide-vue-next';
 
 const notify = useNotify();
-const roles = ref<any>({});
-const permissions = ref<Array<{ id: number; name: string }>>([]);
+const users = ref<any>({});
+const products = ref<Array<{ product_id: string; product_name: string; product_code: string; product_description: string; product_price: number; product_quantity: number; product_image: string | File }>>([]);
 const search = ref<string>('');
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -258,49 +296,53 @@ watch(search, () => {
 
 const fetchTableData = async (page = 1) => {
     try {
-        const response = await axios.get(route('roles.list', { page, search: search.value }));
+        const response = await axios.get(route('products.list', { page, search: search.value }));
         if (response.data.result === true) {
-            roles.value = response.data;
+            products.value = response.data;
         }
     } catch (error) {
-        console.error('Error fetching roles:', error);
+        console.error('Error fetching products:', error);
     }
 };
 
-const fetchPermissions = async () => {
-    try {
-        const response = await axios.get(route('permissions.list'));
-        if (response.data.result === true) {
-            permissions.value = response.data.data;
-        }
-    } catch (error) {
-        console.error('Error fetching permissions:', error);
-    }
-};
+// const fetchRoles = async () => {
+//     try {
+//         const response = await axios.get(route('roles.list'));
+//         if (response.data.result === true) {
+//             roles.value = response.data.data;
+//         }
+//     } catch (error) {
+//         console.error('Error fetching permissions:', error);
+//     }
+// };
 
 const reload = () => {
     fetchTableData();
-    fetchPermissions();
+    // fetchRoles();
 }
 
 onMounted(() => {
     fetchTableData(1);
-    fetchPermissions();
+    // fetchRoles();
 });
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Roles',
-        href: route('roles.index'),
+        title: 'Products',
+        href: route('products.index'),
     },
 ];
 
 const visible = ref(false);
 
-const newRole = ref<{ id?: string; name: string; permissions: string[] }>({
-    id: '',
-    name: '',
-    permissions: [],
+const newProduct = ref<{ product_id?: string; product_name: string; product_code: string; product_description: string; product_price: number; product_quantity: number; product_image: string | File }>({
+    product_id: '',
+    product_name: '',
+    product_code: '',
+    product_description: '',
+    product_price: 0,
+    product_quantity: 0,
+    product_image: '',
 });
 
 const AddModal = ref<HTMLElement | null>(null);
@@ -320,33 +362,46 @@ const handleCloseModal = () => {
 };
 const formRef = ref<HTMLFormElement | null>(null);
 
-const submitRole = async () => {
-    const route_url = route('roles.store');
-    const payload = newRole.value.id ? {
-        id: newRole.value.id,
-        name: newRole.value.name,
-        permissions: newRole.value.permissions,
-    } : {
-        name: newRole.value.name,
-        permissions: newRole.value.permissions,
-    };
+const submitProduct = async () => {
+    const route_url = route('products.store');
+    const formData = new FormData();
+    if (newProduct.value.product_id) formData.append('product_id', newProduct.value.product_id);
+    formData.append('product_name', newProduct.value.product_name);
+    formData.append('product_code', newProduct.value.product_code);
+    formData.append('product_description', newProduct.value.product_description);
+    formData.append('product_price', newProduct.value.product_price.toString());
+    formData.append('product_quantity', newProduct.value.product_quantity.toString());
+    if (newProduct.value.product_image && newProduct.value.product_image instanceof File) {
+        formData.append('product_image', newProduct.value.product_image);
+    }
     try {
-        const response = await axios.post(route_url, payload);
-
+        const response = await axios.post(route_url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         if (response.data.result == true) {
-            console.log('Role created successfully:', response.data);
             if (formRef.value) formRef.value.reset();
-            newRole.value = { name: '', permissions: [] };
+            newProduct.value = {
+                product_id: '',
+                product_name: '',
+                product_code: '',
+                product_description: '',
+                product_price: 0,
+                product_quantity: 0,
+                product_image: '',
+            };
             handleCloseModal();
             handleCloseEditModal();
             reload();
             notify(response.data.message, "success");
         }
     } catch (error) {
-        notify("Error creating role", "error");
+        notify("Error creating product", "error");
         console.error('Error:', error);
     }
 };
+
 const EditModal = ref<HTMLElement | null>(null);
 
 const handleOpenEditModal = () => {
@@ -358,29 +413,29 @@ const handleOpenEditModal = () => {
 
 const handleCloseEditModal = () => {
     visible.value = false;
+    newUser.value = { id: '', name: '', email: '', password: '', password_confirmation: '', roles: [] };
     if (EditModal.value) {
         EditModal.value.classList.add('hidden');
     }
 };
 
-const fetchRoleDetails = async (roleId: string) => {
-    const route_url = route('roles.edit', roleId);
+const fetchUserDetails = async (userId: string) => {
+    const route_url = route('users.edit', userId);
     try {
         const response = await axios.get(route_url);
         if (response.data.result === true) {
             // Set role data for editing
-            newRole.value = {
+            newUser.value = {
                 id: response.data.data.id,
                 name: response.data.data.name,
-                permissions: response.data.data.permissions
+                email: response.data.data.email,
+                password: response.data.data.password ?? null,
+                password_confirmation: response.data.data.password ?? null,
+                roles: response.data.data.roles
                     .filter((p: any) => p.assigned)
                     .map((p: any) => p.id),
             };
-            // Optionally update permissions list if needed
-            permissions.value = response.data.data.permissions.map((p: any) => ({
-                id: p.id,
-                name: p.name,
-            }));
+
             handleOpenEditModal();
         }
     } catch (error) {
@@ -390,52 +445,62 @@ const fetchRoleDetails = async (roleId: string) => {
 };
 
 
-const handleDeleteRole = async (roleId: string) => {
-    const route_url = route('roles.destroy', roleId);
-    if (confirm('Are you sure you want to delete this role?')) {
+const handleDeleteUser = async (userId: string) => {
+    const route_url = route('users.destroy', userId);
+    if (confirm('Are you sure you want to delete this user?')) {
         try {
             const response = await axios.post(route_url);
             if (response.status === 200) {
-                notify("Role deleted successfully", "success");
+                notify("User deleted successfully", "success");
                 reload();
             }
         } catch (error) {
-            notify("Error deleting role", "error");
+            notify("Error deleting user", "error");
             console.error('Error:', error);
         }
     }
 };
 
-const AddPermissionModal = ref<HTMLElement | null>(null);
-const permissionFormRef = ref<HTMLFormElement | null>(null);
-const newPermission = ref({ name: '' });
-
-const handleOpenPermissionModal = () => {
-    if (AddPermissionModal.value) {
-        AddPermissionModal.value.classList.remove('hidden');
-    }
-};
-const handleClosePermissionModal = () => {
-    if (AddPermissionModal.value) {
-        AddPermissionModal.value.classList.add('hidden');
+// Handle image file input change
+const onImageChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files[0]) {
+        const file = target.files[0];
+        // You may want to upload the file or convert it to base64, here we just store the file object
+        newProduct.value.product_image = file;
     }
 };
 
-const submitPermission = async () => {
-    const route_url = route('permissions.store');
-    try {
-        const response = await axios.post(route_url, newPermission.value);
-        if (response.data.result == true) {
-            if (permissionFormRef.value) permissionFormRef.value.reset();
-            newPermission.value = { name: '' };
-            handleClosePermissionModal();
-            notify("Permission created successfully", "success");
-        } else {
-            notify(response.data.message, "error");
-            console.error('Error creating permission:', response.data);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-    }
-};
+// const AddPermissionModal = ref<HTMLElement | null>(null);
+// const permissionFormRef = ref<HTMLFormElement | null>(null);
+// const newPermission = ref({ name: '' });
+
+// const handleOpenPermissionModal = () => {
+//     if (AddPermissionModal.value) {
+//         AddPermissionModal.value.classList.remove('hidden');
+//     }
+// };
+// const handleClosePermissionModal = () => {
+//     if (AddPermissionModal.value) {
+//         AddPermissionModal.value.classList.add('hidden');
+//     }
+// };
+
+// const submitPermission = async () => {
+//     const route_url = route('permissions.store');
+//     try {
+//         const response = await axios.post(route_url, newPermission.value);
+//         if (response.data.result == true) {
+//             if (permissionFormRef.value) permissionFormRef.value.reset();
+//             newPermission.value = { name: '' };
+//             handleClosePermissionModal();
+//             notify("Permission created successfully", "success");
+//         } else {
+//             notify(response.data.message, "error");
+//             console.error('Error creating permission:', response.data);
+//         }
+//     } catch (error) {
+//         console.error('Error:', error);
+//     }
+// };
 </script>

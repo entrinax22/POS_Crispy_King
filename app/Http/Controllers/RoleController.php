@@ -21,7 +21,15 @@ class RoleController extends Controller
 
     public function list(Request $request)
     {
-        $roles = Role::with('permissions')->get()->map(function ($role) {
+        $search = $request->input('search');
+        $roles = Role::query()
+            ->when($search, function ($query) use ($search) {
+                return $query->where('name', 'like', "%{$search}%");
+            })
+            ->with('permissions')
+            ->paginate(10);
+
+        $data = $roles->getCollection()->map(function ($role) {
             return [
                 'id' => encrypt($role->id),
                 'name' => $role->name,
@@ -31,7 +39,14 @@ class RoleController extends Controller
 
         return response()->json([
             "result" => true,
-            "data" => $roles,
+            "data" => $data,
+            "message" => 'Roles retrieved successfully.',
+            "pagination" => [
+                "total" => $roles->total(),
+                "current_page" => $roles->currentPage(),
+                "last_page" => $roles->lastPage(),
+                "per_page" => $roles->perPage(),
+            ],
         ]);
     }
 
@@ -41,10 +56,9 @@ class RoleController extends Controller
             $id = decrypt($request->input('id'));
             $role = Role::findOrFail($id);
             $role->name = $request->input('name');
-            $permissionIds = collect($request->input('permissions') ?? [])
-                ->pluck('id')
-                ->map(function ($id) {
-                    return decrypt($id);
+            $permissionIds = collect($validated['permissions'] ?? [])
+                ->map(function ($encryptedId) {
+                    return decrypt($encryptedId);
                 })
                 ->all();
             $role->syncPermissions($permissionIds);
@@ -61,9 +75,8 @@ class RoleController extends Controller
             ]);
 
             $permissionIds = collect($validated['permissions'] ?? [])
-                ->pluck('id')
-                ->map(function ($id) {
-                    return decrypt($id);
+                ->map(function ($encryptedId) {
+                    return decrypt($encryptedId);
                 })
                 ->all();
 
