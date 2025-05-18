@@ -28,7 +28,7 @@ class RoleController extends Controller
             })
             ->with('permissions')
             ->paginate(10);
-        
+
         $data = $roles->getCollection()->map(function ($role) {
             return [
                 'id' => encrypt($role->id),
@@ -56,10 +56,9 @@ class RoleController extends Controller
             $id = decrypt($request->input('id'));
             $role = Role::findOrFail($id);
             $role->name = $request->input('name');
-            $permissionIds = collect($request->input('permissions') ?? [])
-                ->pluck('id')
-                ->map(function ($id) {
-                    return decrypt($id);
+            $permissionIds = collect($validated['permissions'] ?? [])
+                ->map(function ($encryptedId) {
+                    return decrypt($encryptedId);
                 })
                 ->all();
             $role->syncPermissions($permissionIds);
@@ -76,9 +75,8 @@ class RoleController extends Controller
             ]);
 
             $permissionIds = collect($validated['permissions'] ?? [])
-                ->pluck('id')
-                ->map(function ($id) {
-                    return decrypt($id);
+                ->map(function ($encryptedId) {
+                    return decrypt($encryptedId);
                 })
                 ->all();
 

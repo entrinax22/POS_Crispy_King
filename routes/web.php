@@ -4,6 +4,8 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PermissionController;
 
 Route::get('/', function () {
@@ -15,6 +17,13 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    // Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::post('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::get('/users/list', [UserController::class, 'list'])->name('users.list');
+    Route::get('/users/{user}', [UserController::class, 'edit'])->name('users.edit');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+
     Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
     Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
     Route::post('/roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
@@ -28,10 +37,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/permissions/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
 });
 
-Route::middleware(['auth', 'role:admin|user'])->group(function () {
+Route::middleware(['auth', 'role:admin|customer'])->group(function () {
     Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
-    
+
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/list', [ProductController::class, 'list'])->name('products.list');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

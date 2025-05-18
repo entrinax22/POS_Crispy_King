@@ -256,8 +256,11 @@ const handleClosePermissionModal = () => {
 
 const submitPermission = async () => {
     const route_url = route('permissions.store');
+    const payload = newPermission.value.id
+        ? { id: newPermission.value.id, name: newPermission.value.name }
+        : { name: newPermission.value.name };
     try {
-        const response = await axios.post(route_url, newPermission.value);
+        const response = await axios.post(route_url, payload);
         if (response.data.result == true) {
             if (permissionFormRef.value) permissionFormRef.value.reset();
             handleClosePermissionModal();
