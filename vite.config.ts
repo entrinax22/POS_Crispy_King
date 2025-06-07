@@ -29,10 +29,11 @@ export default defineConfig({
         },
     },
     server: {
-        host: 'poscrispyking.com',
-        port: 5173,
-        strictPort: true,
-        origin: 'http://poscrispyking.com:5173',
-        cors: true,
+        cors: {
+            origin: 'http://poscrispyking.com',
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            allowedHeaders: ['Content-Type', 'Authorization'],
+            credentials: true
+        }
     },
 });

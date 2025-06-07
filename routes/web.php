@@ -43,6 +43,8 @@ Route::middleware(['auth', 'role:admin|customer'])->group(function () {
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/list', [ProductController::class, 'list'])->name('products.list');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::get('/products/{product}', [ProductController::class, 'edit'])->name('products.edit');
+    Route::post('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 });
 
 require __DIR__ . '/settings.php';

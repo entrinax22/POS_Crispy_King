@@ -24,13 +24,13 @@ class ProductController extends Controller
 
         $data = $products->getCollection()->map(function ($product) {
             return [
-                'product_id' => encrypt($product->id),
+                'product_id' => encrypt($product->product_id),
                 'product_name' => $product->product_name,
                 'product_code' => $product->product_code,
                 'product_description' => $product->product_description,
                 'product_price' => $product->product_price,
                 'product_quantity' => $product->product_quantity,
-                'product_image' => $product->product_image,
+                'product_image' => $product->product_image ? asset($product->product_image):null,
             ];
         });
 
@@ -106,5 +106,43 @@ class ProductController extends Controller
                 'message' => 'Product created successfully.',
             ]);
         }
+    }
+
+    public function edit($encryptedId)
+    {
+        $id = decrypt($encryptedId);
+        $product = Product::where('product_id', $id)->firstOrFail();
+
+        return response()->json([
+            'result' => true,
+            'message' => 'Product retrieved successfully.',
+            'data' => [
+                'product_id' => encrypt($product->product_id),
+                'product_name' => $product->product_name,
+                'product_code' => $product->product_code,
+                'product_description' => $product->product_description,
+                'product_price' => $product->product_price,
+                'product_quantity' => $product->product_quantity,
+                'product_image' => $product->product_image ? asset($product->product_image) : null,
+            ],
+        ]);
+    }
+
+    public function destroy($encryptedId)
+    {
+        $id = decrypt($encryptedId);
+        $product = Product::findOrFail($id);
+
+        // Delete the product image if it exists
+        if ($product->product_image && file_exists(public_path($product->product_image))) {
+            @unlink(public_path($product->product_image));
+        }
+
+        $product->delete();
+
+        return response()->json([
+            'result' => true,
+            'message' => 'Product deleted successfully.',
+        ]);
     }
 }
