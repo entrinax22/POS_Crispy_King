@@ -20,6 +20,7 @@ class ProductController extends Controller
             ->when($search, function ($query) use ($search) {
                 return $query->where('product_name', 'like', "%{$search}%")->orWhere('product_code', 'like', "%{$search}%");
             })
+            ->orderByDesc('product_id')
             ->paginate(10);
 
         $data = $products->getCollection()->map(function ($product) {

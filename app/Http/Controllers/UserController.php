@@ -29,7 +29,14 @@ class UserController extends Controller
                 'id' => encrypt($user->id),
                 'name' => $user->name,
                 'email' => $user->email,
-                'roles' => $user->roles->pluck('name'),
+                'roles' => [
+                    'assigned' => $user->roles->map(function ($role) {
+                        return [
+                            'id' => encrypt($role->id),
+                            'name' => $role->name,
+                        ];
+                    })->toArray(),
+                ],
             ];
         });
 
@@ -100,6 +107,11 @@ class UserController extends Controller
         $id = decrypt($encryptedId);
         $user = User::with('roles')->findOrFail($id);
 
+        $roles = Role::all();
+        $encryptedRoles = $roles->mapWithKeys(function ($role) {
+            return [$role->id => encrypt($role->id)];
+        });
+
         return response()->json([
             'result' => true,
             'message' => 'User retrieved successfully.',
@@ -107,18 +119,23 @@ class UserController extends Controller
                 'id' => encrypt($user->id),
                 'name' => $user->name,
                 'email' => $user->email,
-                'roles' => $user->roles->map(function ($role) {
-                    return [
-                        'id' => encrypt($role->id),
-                        'name' => $role->name,
-                        'assigned' => true,
-                    ];
-                }),
+                'roles' => [
+                    'assigned' => $user->roles->map(function ($role) use ($encryptedRoles) {
+                        return [
+                            'id' => $encryptedRoles[$role->id], 
+                            'name' => $role->name,
+                        ];
+                    })->toArray(),
+                    'available' => $roles->map(function ($role) use ($encryptedRoles) {
+                        return [
+                            'id' => $encryptedRoles[$role->id],
+                            'name' => $role->name,
+                        ];
+                    })->toArray(),
+                ]
             ],
-
         ]);
     }
-
     
     public function destroy($encryptedId)
     {

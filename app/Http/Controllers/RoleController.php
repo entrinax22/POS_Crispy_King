@@ -56,7 +56,7 @@ class RoleController extends Controller
             $id = decrypt($request->input('id'));
             $role = Role::findOrFail($id);
             $role->name = $request->input('name');
-            $permissionIds = collect($validated['permissions'] ?? [])
+            $permissionIds = collect($request->input('permissions', []))
                 ->map(function ($encryptedId) {
                     return decrypt($encryptedId);
                 })
@@ -73,16 +73,13 @@ class RoleController extends Controller
                 'name' => 'required|string|max:255|unique:roles,name',
                 'permissions' => 'array',
             ]);
-
             $permissionIds = collect($validated['permissions'] ?? [])
                 ->map(function ($encryptedId) {
                     return decrypt($encryptedId);
                 })
                 ->all();
-
             $role = Role::create(['name' => $validated['name']]);
             $role->syncPermissions($permissionIds);
-
             return response()->json([
                 'result' => true,
                 'message' => 'Role created successfully.',

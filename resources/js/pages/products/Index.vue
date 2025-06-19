@@ -45,104 +45,38 @@
                     </button>
                 </div>
             </div>
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <table class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
-                    <thead class="bg-gray-300 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" class="px-6 py-3">Product Name</th>
-                            <th scope="col" class="px-6 py-3">Product Code</th>
-                            <th scope="col" class="px-6 py-3">Price</th>
-                            <th scope="col" class="px-6 py-3">Quantity</th>
-                            <th scope="col" class="px-6 py-3">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="product in products.data"
-                            :key="product.product_id"
-                            class="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                        >
-                            <td class="px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white">{{ product.product_name }}</td>
-                            <td class="px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white">{{ product.product_code }}</td>
-                            <td class="px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white">{{ product.product_price }}</td>
-                            <td class="px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white">{{ product.product_quantity }}</td>
+            <BaseTable
+                :columns="columns"
+                :rows="products.data ?? []"
+                :pagination="products.pagination ?? {}"
+                uniqueKey="product_id"
+                @page-change="fetchTableData"
+            >
+                <template #count="{ index }">
+                    {{ products.pagination.per_page * (products.pagination.current_page - 1) + index + 1 }}
+                </template>
 
-                            <td class="px-6 py-4">
-                                <button
-                                    class="mr-2 rounded bg-yellow-500 px-3 py-1 font-medium text-white hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-300"
-                                    @click="fetchProductDetails(product.product_id)"
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    class="rounded bg-red-600 px-3 py-1 font-medium text-white hover:bg-red-700 focus:ring-2 focus:ring-red-300"
-                                    @click="handleDeleteProduct(product.product_id)"
-                                >
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot v-if="products.pagination">
-                        <tr>
-                            <td colspan="1" class="px-6 py-4">
-                                <span class="text-sm text-gray-600"> Total: {{ products.pagination.total }} products </span>
-                            </td>
-                            <td colspan="4" class="px-6 py-4">
-                                <div class="flex items-center justify-end gap-2">
-                                    <button
-                                        :disabled="products.pagination.current_page === 1"
-                                        @click="fetchTableData(products.pagination.current_page - 1)"
-                                        class="rounded border bg-gray-200 px-2 py-1 hover:bg-gray-300 disabled:opacity-50"
-                                        aria-label="Previous page"
-                                    >
-                                        &laquo;
-                                    </button>
-                                    <template v-for="page in Math.min(products.pagination.last_page, 5)" :key="page">
-                                        <button
-                                            v-if="
-                                                page === 1 ||
-                                                page === products.pagination.last_page ||
-                                                Math.abs(page - products.pagination.current_page) <= 1
-                                            "
-                                            :class="[
-                                                'rounded border px-3 py-1',
-                                                page === products.pagination.current_page
-                                                    ? 'bg-blue-600 text-white'
-                                                    : 'bg-gray-200 hover:bg-gray-300',
-                                            ]"
-                                            @click="fetchTableData(page)"
-                                            :disabled="page === products.pagination.current_page"
-                                        >
-                                            {{ page }}
-                                        </button>
-                                        <span
-                                            v-else-if="page === products.pagination.current_page - 2 || page === products.pagination.current_page + 2"
-                                            class="px-2"
-                                            >...</span
-                                        >
-                                    </template>
-                                    <button
-                                        :disabled="products.pagination.current_page === products.pagination.last_page"
-                                        @click="fetchTableData(products.pagination.current_page + 1)"
-                                        class="rounded border bg-gray-200 px-2 py-1 hover:bg-gray-300 disabled:opacity-50"
-                                        aria-label="Next page"
-                                    >
-                                        &raquo;
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+                <template #actions="{ row }">
+                    <button
+                        class="mr-2 rounded bg-yellow-500 px-3 py-1 font-medium text-white hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-300"
+                        @click="fetchProductDetails(row.product_id)"
+                    >
+                        Edit
+                    </button>
+                    <button
+                        class="rounded bg-red-600 px-3 py-1 font-medium text-white hover:bg-red-700 focus:ring-2 focus:ring-red-300"
+                        @click="handleDeleteProduct(row.product_id)"
+                    >
+                        Delete
+                    </button>
+                </template>
+            </BaseTable>
         </div>
 
         <!-- Modal Background -->
         <div
             ref="AddModal"
             tabindex="-1"
-            aria-hidden="true"
             class="fixed inset-0 z-50 flex hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto backdrop-blur-sm md:inset-0"
         >
             <div class="relative mx-auto my-auto flex max-h-full w-full max-w-2xl items-center justify-center p-4">
@@ -261,7 +195,6 @@
         <div
             ref="EditModal"
             tabindex="-1"
-            aria-hidden="true"
             class="fixed inset-0 z-50 flex hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto backdrop-blur-sm md:inset-0"
         >
             <div class="relative mx-auto my-auto flex max-h-full w-full max-w-2xl items-center justify-center p-4">
@@ -392,12 +325,22 @@
 </template>
 
 <script setup lang="ts">
+import BaseTable from '@/components/BaseTable.vue';
 import { useNotify } from '@/composables/useNotify';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
 import { onMounted, ref, watch } from 'vue';
+
+const columns = [
+    { label: '#', key: 'count' },
+    { label: 'Product Name', key: 'product_name' },
+    { label: 'Product Code', key: 'product_code' },
+    { label: 'Price', key: 'product_price' },
+    { label: 'Quantity', key: 'product_quantity' },
+    { label: 'Actions', key: 'actions' },
+];
 
 const notify = useNotify();
 
@@ -460,7 +403,7 @@ const fetchTableData = async (page = 1) => {
 // };
 
 const reload = () => {
-    fetchTableData();
+    fetchTableData(1);
     // fetchRoles();
 };
 
