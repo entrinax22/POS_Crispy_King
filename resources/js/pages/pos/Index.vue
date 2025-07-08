@@ -56,7 +56,9 @@
             </div>
 
             <!-- POS Terminal (Cart) -->
-            <div class="flex w-full flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm md:w-1/3 dark:border-gray-700 dark:bg-gray-900">
+            <div
+                class="flex h-[80vh] max-h-[900px] min-h-[500px] w-full flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm md:w-1/3 dark:border-gray-700 dark:bg-gray-900"
+            >
                 <div class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Order Cart</div>
 
                 <!-- Order Type Options -->
@@ -65,10 +67,10 @@
                         <input
                             type="radio"
                             name="orderType"
-                            value="dine-in"
-                            :checked="orderType === 'dine-in'"
+                            value="dine_in"
+                            :checked="orderType === 'dine_in'"
                             class="accent-yellow-500"
-                            @change="setOrderType('dine-in')"
+                            @change="setOrderType('dine_in')"
                         />
                         Dine In
                     </label>
@@ -76,17 +78,17 @@
                         <input
                             type="radio"
                             name="orderType"
-                            value="take-out"
-                            :checked="orderType === 'take-out'"
+                            value="take_out"
+                            :checked="orderType === 'take_out'"
                             class="accent-yellow-500"
-                            @change="setOrderType('take-out')"
+                            @change="setOrderType('take_out')"
                         />
                         Take Out
                     </label>
                 </div>
 
                 <!-- Cart List -->
-                <div v-if="cart.length" class="mb-4 max-h-72 flex-1 overflow-y-auto">
+                <div v-if="cart.length" class="mb-4 min-h-[80px] flex-1 overflow-y-auto">
                     <ul>
                         <li v-for="item in cart" :key="item.product_id" class="flex items-center justify-between border-b py-2 dark:border-gray-800">
                             <div>
@@ -104,7 +106,7 @@
                 <div v-else class="flex flex-1 items-center justify-center text-gray-400">Cart is empty</div>
 
                 <!-- Checkout Summary -->
-                <div class="mt-auto border-t pt-4 dark:border-gray-700">
+                <div class="sticky right-0 bottom-0 left-0 z-10 border-t bg-white pt-4 dark:border-gray-700 dark:bg-gray-900">
                     <div class="flex justify-between text-lg font-semibold text-gray-800 dark:text-white">
                         <span>Total</span>
                         <span>₱{{ cartTotal }}</span>
@@ -123,7 +125,6 @@
         <div
             ref="AddModal"
             tabindex="-1"
-            aria-hidden="true"
             class="fixed inset-0 z-50 flex hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto backdrop-blur-sm md:inset-0"
         >
             <div class="relative flex max-h-full w-full max-w-2xl items-center justify-center p-4">
@@ -199,7 +200,6 @@
         <div
             ref="EditModal"
             tabindex="-1"
-            aria-hidden="true"
             class="fixed inset-0 z-50 flex hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto backdrop-blur-sm md:inset-0"
         >
             <div class="relative flex max-h-full w-full max-w-2xl items-center justify-center p-4">
@@ -285,7 +285,7 @@ const notify = useNotify();
 const products = ref<any>({ data: [] });
 const search = ref<string>('');
 const cart = ref<Array<{ product_id: string; product_name: string; product_quantity: number; product_price: number }>>([]);
-const orderType = ref<string>('dine-in');
+const orderType = ref<string>('dine_in');
 const cartTotal = computed(() => cart.value.reduce((sum, item) => sum + item.product_quantity * item.product_price, 0));
 const AddModal = ref<HTMLElement | null>(null);
 const addModalVisible = ref<boolean>(false);
@@ -415,18 +415,19 @@ const proceedToCheckout = async () => {
         return;
     }
     try {
-        const response = await axios.post('/api/pos/checkout', {
+        const response = await axios.post(route('pos.checkout'), {
             cart: cart.value,
+            total_amount: cartTotal.value,
             orderType: orderType.value,
         });
         if (response.data.result) {
-            notify.success('Order placed successfully!');
+            notify('Order placed successfully!', 'success');
             cart.value = [];
         } else {
-            notify.error(response.data.message || 'Checkout failed.');
+            notify(response.data.message || 'Checkout failed.', 'error');
         }
-    } catch (e) {
-        notify.error('Checkout failed.');
+    } catch (error: any) {
+        notify(error?.response?.data?.message || error.message || 'Checkout failed.', 'error');
     }
 };
 </script>

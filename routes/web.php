@@ -35,6 +35,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
     Route::get('/permissions/{permission}', [PermissionController::class, 'edit'])->name('permissions.edit');
     Route::post('/permissions/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
+
+    Route::post('/checkout', [POSController::class, 'create'])->name('pos.checkout');
+    Route::get('/order/update/{order_id}', [POSController::class, 'update'])->name('pos.update');
 });
 
 Route::middleware(['auth', 'role:admin|customer'])->group(function () {
@@ -45,7 +48,17 @@ Route::middleware(['auth', 'role:admin|customer'])->group(function () {
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
     Route::get('/products/{product}', [ProductController::class, 'edit'])->name('products.edit');
     Route::post('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+    Route::get('/home', function () {
+        return Inertia::render('customers/index');
+    })->name('cusomers.index');
+
+    Route::get('/order_now', function () {
+        return Inertia::render('customers/create');
+    })->name('cusomers.create');
 });
+
+
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
