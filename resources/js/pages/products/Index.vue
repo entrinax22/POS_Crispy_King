@@ -1,5 +1,5 @@
 <template>
-    <Head title="Products" />
+    <Head title="Crispy King | Products" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6">

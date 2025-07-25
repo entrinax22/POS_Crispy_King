@@ -26,32 +26,39 @@
                     />
                 </div>
             </div>
-            <div class="space-y-4">
-                <div v-if="items.length === 0" class="py-8 text-center text-gray-400">No products added yet.</div>
+            <div
+                class="scrollbar-thin scrollbar-thumb-orange-200 scrollbar-track-orange-50 max-h-[30vh] space-y-4 overflow-y-auto px-2 md:max-h-[40vh]"
+            >
+                <div v-if="items.length === 0" class="py-8 text-center text-base text-gray-400">No products added yet.</div>
                 <div
                     v-for="(item, idx) in items"
                     :key="idx"
-                    class="relative flex flex-col gap-2 rounded-lg border border-orange-100 bg-orange-50 p-4 md:flex-row md:items-end md:gap-4"
+                    class="relative flex flex-col gap-3 rounded-xl border border-orange-200 bg-white p-4 shadow-sm md:flex-row md:items-end md:gap-4"
                 >
                     <div class="flex-1">
-                        <div class="font-semibold text-gray-800">{{ item.product }}</div>
-                        <div class="text-sm text-gray-500">Qty: {{ item.quantity }}</div>
+                        <div class="text-lg font-bold text-orange-700">{{ item.product }}</div>
+                        <div class="text-sm text-gray-500">
+                            Qty: <span class="font-semibold text-gray-700">{{ item.quantity }}</span>
+                        </div>
                     </div>
                     <div class="w-full md:w-28">
-                        <div class="text-sm text-gray-700">Price</div>
-                        <div class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-center text-gray-700">
+                        <div class="text-xs text-gray-500">Price</div>
+                        <div class="rounded-lg border border-gray-200 bg-orange-50 px-3 py-2 text-center font-semibold text-orange-700">
                             ₱{{ getProductPrice(item.product) }}
                         </div>
                     </div>
                     <div class="w-full md:w-32">
-                        <div class="text-sm text-gray-700">Subtotal</div>
-                        <div class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-center text-gray-700">₱{{ getSubtotal(item) }}</div>
+                        <div class="text-xs text-gray-500">Subtotal</div>
+                        <div class="rounded-lg border border-gray-200 bg-orange-50 px-3 py-2 text-center font-semibold text-orange-700">
+                            ₱{{ getSubtotal(item) }}
+                        </div>
                     </div>
                     <button
                         v-if="items.length > 0"
                         type="button"
                         @click="removeItem(idx)"
-                        class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-xl font-bold text-red-400 shadow-sm hover:text-red-600"
+                        class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-xl font-bold text-red-400 shadow hover:text-red-600 focus:outline-none"
+                        aria-label="Remove item"
                     >
                         &times;
                     </button>
@@ -59,9 +66,9 @@
                 <button
                     type="button"
                     @click="showProductModal = true"
-                    class="flex w-full items-center justify-center gap-1 rounded-full border border-orange-400 bg-orange-100 px-4 py-2 font-semibold text-orange-700 transition hover:bg-orange-200 md:w-auto md:justify-start"
+                    class="flex w-full items-center justify-center gap-2 rounded-full border border-orange-400 bg-orange-100 px-4 py-3 text-base font-bold text-orange-700 transition hover:bg-orange-200 md:w-auto md:justify-start"
                 >
-                    <span class="text-xl leading-none">+</span> Add Product
+                    <span class="text-2xl leading-none">+</span> Add Product
                 </button>
             </div>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-1">

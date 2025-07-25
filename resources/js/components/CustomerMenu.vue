@@ -1,18 +1,33 @@
 <template>
     <section id="menu" class="menu">
-        <h2>Our Menu</h2>
-        <ul class="menu-list">
-            <li>
-                <h3>Signature Fried Chicken</h3>
-                <p>Golden, crispy, and juicy. Served with your choice of sides.</p>
+        <h2 class="mb-6 text-center text-2xl font-bold text-orange-700">Our Menu</h2>
+        <ul class="menu-list grid gap-6 md:grid-cols-3">
+            <li class="flex flex-col items-center rounded-xl bg-white p-4 shadow-md">
+                <img
+                    src="/images/chicken.jpeg"
+                    alt="Signature Fried Chicken"
+                    class="mb-3 h-24 w-24 rounded-full border-4 border-orange-100 object-cover shadow"
+                />
+                <h3 class="mb-1 text-lg font-bold text-orange-700">Signature Fried Chicken</h3>
+                <p class="text-center text-gray-600">Golden, crispy, and juicy. Served with your choice of sides.</p>
             </li>
-            <li>
-                <h3>Chicken Burger</h3>
-                <p>Crunchy chicken fillet, fresh veggies, and our special sauce.</p>
+            <li class="flex flex-col items-center rounded-xl bg-white p-4 shadow-md">
+                <img
+                    src="/images/chicken.jpeg"
+                    alt="Chicken Burger"
+                    class="mb-3 h-24 w-24 rounded-full border-4 border-orange-100 object-cover shadow"
+                />
+                <h3 class="mb-1 text-lg font-bold text-orange-700">Chicken Burger</h3>
+                <p class="text-center text-gray-600">Crunchy chicken fillet, fresh veggies, and our special sauce.</p>
             </li>
-            <li>
-                <h3>Family Meals</h3>
-                <p>Perfect for sharing! Includes chicken, fries, and drinks.</p>
+            <li class="flex flex-col items-center rounded-xl bg-white p-4 shadow-md">
+                <img
+                    src="/images/chicken.jpeg"
+                    alt="Family Meals"
+                    class="mb-3 h-24 w-24 rounded-full border-4 border-orange-100 object-cover shadow"
+                />
+                <h3 class="mb-1 text-lg font-bold text-orange-700">Family Meals</h3>
+                <p class="text-center text-gray-600">Perfect for sharing! Includes chicken, fries, and drinks.</p>
             </li>
         </ul>
     </section>
@@ -37,16 +52,14 @@ export default {
     padding: 0;
     margin: 0;
 }
-.menu-list li {
-    margin-bottom: 1.5rem;
-}
-.menu-list h3 {
-    color: #d2691e;
-    margin-bottom: 0.3rem;
-}
 @media (max-width: 600px) {
     .menu {
         padding: 1rem;
+    }
+    .menu-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
     }
 }
 </style>

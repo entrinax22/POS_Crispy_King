@@ -23,4 +23,9 @@ class Product extends Model
     protected $table = 'products';
     protected $primaryKey = 'product_id';
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

@@ -47,6 +47,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return to_route('dashboard');
+        return to_route('customers.index')->with('success', 'Registration successful! Welcome to POS Crispy King.');
     }
 }

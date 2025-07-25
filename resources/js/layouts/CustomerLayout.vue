@@ -10,21 +10,39 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
-            <nav class="hidden space-x-8 md:flex">
-                <a href="#about" class="text-lg font-semibold text-gray-800 transition-colors duration-200 hover:text-orange-700">About</a>
-                <a href="#menu" class="text-lg font-semibold text-gray-800 transition-colors duration-200 hover:text-orange-700">Menu</a>
-                <a
-                    @click.prevent="showOrderModal = true"
-                    href="#order"
-                    class="rounded-full bg-orange-600 px-4 py-2 text-lg font-semibold text-white shadow transition-colors duration-200 hover:bg-orange-700"
-                    >Order Now</a
-                >
+            <nav class="hidden items-center space-x-8 md:flex">
+                <a href="#about" class="flex items-center text-lg font-semibold text-gray-800 transition-colors duration-200 hover:text-orange-700">
+                    About
+                </a>
+                <a href="#menu" class="flex items-center text-lg font-semibold text-gray-800 transition-colors duration-200 hover:text-orange-700">
+                    Menu
+                </a>
+                <!-- User Dropdown -->
+                <div class="relative">
+                    <button
+                        @click="dropdownOpen = !dropdownOpen"
+                        class="flex items-center gap-2 text-lg font-semibold text-gray-800 hover:text-orange-700"
+                    >
+                        <span>{{ user.name }}</span>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div v-if="dropdownOpen" class="absolute right-0 z-50 mt-2 w-48 rounded-md border bg-white py-2 shadow-lg">
+                        <div class="border-b px-4 py-2 text-sm text-gray-700">
+                            {{ user.email.length > 24 ? user.email.slice(0, 21) + '...' : user.email }}
+                        </div>
+                        <button @click="logout" class="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100">Logout</button>
+                    </div>
+                </div>
                 <a
                     @click.prevent="showReservationModal = true"
                     href="#reservation"
-                    class="rounded-full border border-orange-600 bg-white px-4 py-2 text-lg font-semibold text-orange-700 shadow transition-colors duration-200 hover:bg-orange-100"
-                    >Reserve Table</a
+                    class="flex items-center rounded-full border border-orange-600 bg-white px-4 py-2 text-lg font-semibold text-orange-700 shadow transition-colors duration-200 hover:bg-orange-100"
                 >
+                    Reserve Table
+                </a>
             </nav>
             <transition name="fade">
                 <nav
@@ -118,7 +136,14 @@ export default {
             showOrderModal: false,
             showReservationModal: false,
             showMobileNav: false,
+            user: this.$page.props.auth.user,
+            dropdownOpen: false,
         };
+    },
+    methods: {
+        logout() {
+            this.$inertia.post('/logout');
+        },
     },
 };
 </script>

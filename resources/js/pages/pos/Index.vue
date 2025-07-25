@@ -1,5 +1,5 @@
 <template>
-    <Head title="POS Terminal" />
+    <Head title="Crispy King | POS" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-screen flex-col gap-6 bg-gray-50 p-4 md:flex-row dark:bg-gray-950">
             <!-- Products List -->

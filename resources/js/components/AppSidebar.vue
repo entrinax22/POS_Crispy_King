@@ -4,13 +4,12 @@ import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Calculator } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
+import { BookOpen, Calculator, Folder, LayoutGrid } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
-import {usePage} from '@inertiajs/vue3';
 
 const page = usePage();
-const user = ((page.props as unknown) as { auth: { user: any } }).auth.user;
+const user = (page.props as unknown as { auth: { user: any } }).auth.user;
 
 type MainNavItem = {
     title: string;
@@ -40,7 +39,7 @@ const mainNavItems: MainNavItem[] = [
     },
     {
         title: 'Roles',
-        href: route('roles.index'), 
+        href: route('roles.index'),
         icon: Folder,
         show: true,
     },
@@ -55,8 +54,14 @@ const mainNavItems: MainNavItem[] = [
         href: route('products.index'),
         icon: BookOpen,
         show: true,
-    }
-].filter(item => item.show === undefined || item.show);
+    },
+    {
+        title: 'Tables',
+        href: route('tables.index'),
+        icon: BookOpen,
+        show: true,
+    },
+].filter((item) => item.show === undefined || item.show);
 
 const footerNavItems: NavItem[] = [
     {

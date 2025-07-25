@@ -24,7 +24,7 @@
             <tfoot v-if="pagination">
                 <tr>
                     <td colspan="1" class="px-6 py-4">
-                        <span class="text-sm text-gray-600"> Total: {{ safePagination.total }} products </span>
+                        <span class="text-sm text-gray-600"> Total: {{ safePagination.total }} items </span>
                     </td>
                     <td :colspan="columns.length - 1" class="px-6 py-4">
                         <div class="flex items-center justify-end gap-2">

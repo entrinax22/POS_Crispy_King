@@ -5,18 +5,19 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TableController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PermissionController;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
+// Route::get('/', function () {
+//     return Inertia::render('Welcome');
+// })->name('home');
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'role:admin|cashier'])->group(function () {
+    Route::get('dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     // Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::post('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
@@ -38,6 +39,12 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::post('/checkout', [POSController::class, 'create'])->name('pos.checkout');
     Route::get('/order/update/{order_id}', [POSController::class, 'update'])->name('pos.update');
+
+    Route::get('/tables', [TableController::class, 'index'])->name('tables.index');
+    Route::get('/tables/list', [TableController::class, 'list'])->name('tables.list');
+    Route::post('/tables', [TableController::class, 'store'])->name('tables.store');
+    Route::get('/tables/{table}', [TableController::class, 'edit'])->name('tables.edit');
+    Route::post('/tables/{table}', [TableController::class, 'destroy'])->name('tables.destroy');
 });
 
 Route::middleware(['auth', 'role:admin|customer'])->group(function () {
@@ -49,15 +56,14 @@ Route::middleware(['auth', 'role:admin|customer'])->group(function () {
     Route::get('/products/{product}', [ProductController::class, 'edit'])->name('products.edit');
     Route::post('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 
-    Route::get('/home', function () {
+    Route::get('/', function () {
         return Inertia::render('customers/index');
-    })->name('cusomers.index');
+    })->name('customers.index');
 
-    Route::get('/order_now', function () {
-        return Inertia::render('customers/create');
-    })->name('cusomers.create');
 });
-
+Route::middleware(['auth'])->group(function () {
+    Route::get('/tables/reserve', [TableController::class, 'reserve'])->name('tables.reserve');
+});
 
 
 require __DIR__ . '/settings.php';

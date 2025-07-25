@@ -1,5 +1,5 @@
 <template>
-    <Head title="Permissions" />
+    <Head title="Crispy King | Permissions" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6">

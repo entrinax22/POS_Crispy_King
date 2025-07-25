@@ -30,10 +30,26 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = $request->user();
+
+        if ($user->hasRole(['admin', 'cashier'])) {
+            return redirect()->route('dashboard');
+        }
+
+        if ($user->hasRole('customer')) {
+            return redirect()->route('customers.index');
+        }
+
+        // Fallback: logout and redirect with error if role is not recognized
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')->withErrors([
+            'email' => 'Your account does not have access to this application.',
+        ]);
     }
 
     /**
