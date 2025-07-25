@@ -1,9 +1,9 @@
 <template>
-    <Head title="Crispy King | Tables" />
+    <Head title="Crispy King | Orders" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6">
-            <h1 class="text-2xl font-bold">Tables</h1>
+            <h1 class="text-2xl font-bold">Orders</h1>
 
             <!-- Tables Table -->
             <div class="mr-4 mb-1 flex justify-end">
@@ -41,31 +41,40 @@
                         class="rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium whitespace-nowrap text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                         @click="handleOpenModal()"
                     >
-                        Add Table
+                        Add Order
                     </button>
                 </div>
             </div>
             <BaseTable
                 :columns="columns"
-                :rows="tables.data ?? []"
-                :pagination="tables.pagination ?? {}"
+                :rows="orders.data ?? []"
+                :pagination="orders.pagination ?? {}"
                 uniqueKey="table_id"
                 @page-change="fetchTableData"
             >
                 <template #count="{ index }">
-                    {{ tables.pagination.per_page * (tables.pagination.current_page - 1) + index + 1 }}
+                    {{ orders.pagination.per_page * (orders.pagination.current_page - 1) + index + 1 }}
+                </template>
+
+                <template #ordered_items="{ row }">
+                    <ul v-if="row.ordered_items && row.ordered_items.length" class="list-none ps-5">
+                        <li v-for="item in row.ordered_items" :key="item.product_id">
+                            {{ item.product_name }} ({{ item.quantity }}) - ₱{{ parseFloat(item.total).toFixed(2) }}
+                        </li>
+                    </ul>
+                    <div v-else class="text-gray-500 italic">No items</div>
                 </template>
 
                 <template #actions="{ row }">
                     <button
                         class="mr-2 rounded bg-yellow-500 px-3 py-1 font-medium text-white hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-300"
-                        @click="fetchTableDetails(row.table_id)"
+                        @click="fetchTableDetails(row.order_id)"
                     >
                         Edit
                     </button>
                     <button
                         class="rounded bg-red-600 px-3 py-1 font-medium text-white hover:bg-red-700 focus:ring-2 focus:ring-red-300"
-                        @click="handleDeleteTable(row.table_id)"
+                        @click="handleDeleteTable(row.order_id)"
                     >
                         Delete
                     </button>
@@ -74,15 +83,13 @@
         </div>
 
         <!-- Modal Background -->
-        <div
+        <!-- <div
             ref="AddModal"
             tabindex="-1"
             class="fixed inset-0 z-50 flex hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto backdrop-blur-sm md:inset-0"
         >
             <div class="relative mx-auto my-auto flex max-h-full w-full max-w-2xl items-center justify-center p-4">
-                <!-- Modal content -->
                 <div class="relative rounded-lg bg-white shadow-sm dark:bg-gray-700">
-                    <!-- Modal header -->
                     <div class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600">
                         <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Create Table</h2>
                         <button
@@ -102,7 +109,6 @@
                             <span class="sr-only">Close modal</span>
                         </button>
                     </div>
-                    <!-- Modal body -->
                     <form ref="formRef" @submit.prevent="submitTable">
                         <div class="grid grid-cols-1 gap-4 space-y-4 p-4 md:grid-cols-2 md:p-5">
                             <div class="mb-4">
@@ -129,7 +135,6 @@
                                 </select>
                             </div>
                         </div>
-                        <!-- Modal footer -->
                         <div class="flex items-center justify-end rounded-b border-t border-gray-200 p-4 md:p-5 dark:border-gray-600">
                             <button
                                 type="submit"
@@ -148,18 +153,16 @@
                     </form>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Edit Modal -->
-        <div
+        <!-- <div
             ref="EditModal"
             tabindex="-1"
             class="fixed inset-0 z-50 flex hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto backdrop-blur-sm md:inset-0"
         >
             <div class="relative mx-auto my-auto flex max-h-full w-full max-w-2xl items-center justify-center p-4">
-                <!-- Modal content -->
                 <div class="relative w-full rounded-lg bg-white shadow-sm dark:bg-gray-700">
-                    <!-- Modal header -->
                     <div class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600">
                         <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Edit Product</h2>
                         <button
@@ -179,7 +182,6 @@
                             <span class="sr-only">Close modal</span>
                         </button>
                     </div>
-                    <!-- Modal body -->
                     <form ref="formRef" @submit.prevent="submitEditTable">
                         <div class="grid grid-cols-1 gap-4 space-y-4 p-4 md:grid-cols-2 md:p-5">
                             <input type="hidden" v-model="editTable.table_id" />
@@ -207,7 +209,6 @@
                                 </select>
                             </div>
                         </div>
-                        <!-- Modal footer -->
                         <div class="flex items-center justify-end rounded-b border-t border-gray-200 p-4 md:p-5 dark:border-gray-600">
                             <button
                                 type="submit"
@@ -226,7 +227,7 @@
                     </form>
                 </div>
             </div>
-        </div>
+        </div> -->
     </AppLayout>
 </template>
 
@@ -241,18 +242,31 @@ import { onMounted, ref, watch } from 'vue';
 
 const columns = [
     { label: '#', key: 'count' },
-    { label: 'Table Number', key: 'table_number' },
+    { label: 'Customer Name', key: 'customer_name' },
+    { label: 'Order Type', key: 'order_type' },
+    { label: 'Total Amount', key: 'total_amount' },
     { label: 'Status', key: 'status' },
+    { label: 'Ordered Items', key: 'ordered_items' },
+    // { label: 'Total Amount', key: 'total_amount' },
     { label: 'Actions', key: 'actions' },
 ];
 
 const notify = useNotify();
 
-const tables = ref<{
+const orders = ref<{
     data: Array<{
-        table_id: string;
-        table_number: number;
+        order_id: string;
+        customer_name: string;
         status: string;
+        total_amount: string;
+        order_type: string;
+        ordered_items: Array<{
+            product_id: string;
+            product_name: string;
+            quantity: number;
+            price: string;
+            total: string;
+        }>;
     }>;
     pagination: {
         total: number;
@@ -282,9 +296,9 @@ watch(search, () => {
 
 const fetchTableData = async (page = 1) => {
     try {
-        const response = await axios.get(route('tables.list', { page, search: search.value }));
+        const response = await axios.get(route('orders.list', { page, search: search.value }));
         if (response.data.result === true) {
-            tables.value = response.data;
+            orders.value = response.data;
         }
     } catch (error) {
         console.error('Error fetching products:', error);
@@ -301,21 +315,23 @@ onMounted(() => {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Tables',
-        href: route('tables.index'),
+        title: 'Orders',
+        href: route('orders.index'),
     },
 ];
 
 const visible = ref(false);
 
-const newTable = ref<{
-    table_id?: string;
-    table_number: number;
-    status: string;
+const newOrder = ref<{
+    order_id?: string;
+    status?: string;
+    total_amount?: number;
+    order_type?: string;
 }>({
-    table_id: '',
-    table_number: 0,
-    status: 'available',
+    order_id: '',
+    status: 'Pending',
+    total_amount: 0,
+    order_type: 'Dine-in',
 });
 
 // Table Add Modal logic
@@ -331,10 +347,11 @@ const handleOpenModal = () => {
 
 const handleCloseModal = () => {
     visible.value = false;
-    newTable.value = {
-        table_id: '',
-        table_number: 0,
-        status: 'Available', // Reset to default
+    newOrder.value = {
+        order_id: '',
+        status: 'Pending',
+        total_amount: 0,
+        order_type: 'Dine-in',
     };
     if (AddModal.value) {
         AddModal.value.classList.add('hidden');

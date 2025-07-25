@@ -28,4 +28,8 @@ class Product extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function orderedItems()
+    {
+        return $this->hasMany(OrderedItem::class, 'product_id', 'product_id');
+    }
 }

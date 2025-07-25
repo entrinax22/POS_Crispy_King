@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PermissionController;
@@ -45,6 +46,12 @@ Route::middleware(['auth', 'role:admin|cashier'])->group(function () {
     Route::post('/tables', [TableController::class, 'store'])->name('tables.store');
     Route::get('/tables/{table}', [TableController::class, 'edit'])->name('tables.edit');
     Route::post('/tables/{table}', [TableController::class, 'destroy'])->name('tables.destroy');
+
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/list', [OrderController::class, 'list'])->name('orders.list');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/orders/{order}', [OrderController::class, 'edit'])->name('orders.edit');
+    Route::post('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
 });
 
 Route::middleware(['auth', 'role:admin|customer'])->group(function () {

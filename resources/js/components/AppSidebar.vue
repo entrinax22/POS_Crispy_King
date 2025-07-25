@@ -61,6 +61,12 @@ const mainNavItems: MainNavItem[] = [
         icon: BookOpen,
         show: true,
     },
+    {
+        title: 'Orders',
+        href: route('orders.index'),
+        icon: BookOpen,
+        show: true,
+    },
 ].filter((item) => item.show === undefined || item.show);
 
 const footerNavItems: NavItem[] = [
