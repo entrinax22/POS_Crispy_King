@@ -6,7 +6,7 @@
             <h1 class="text-2xl font-bold">Orders</h1>
 
             <!-- Tables Table -->
-            <div class="mr-4 mb-1 flex justify-end">
+            <div class="mr-0 mb-1 flex justify-end">
                 <div class="flex w-full max-w-lg items-center gap-4">
                     <form class="flex-1" @submit.prevent>
                         <label for="default-search" class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-white">Search</label>
@@ -37,12 +37,12 @@
                             />
                         </div>
                     </form>
-                    <button
+                    <!-- <button
                         class="rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium whitespace-nowrap text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                         @click="handleOpenModal()"
                     >
                         Add Order
-                    </button>
+                    </button> -->
                 </div>
             </div>
             <BaseTable
@@ -74,7 +74,7 @@
                     </button>
                     <button
                         class="rounded bg-red-600 px-3 py-1 font-medium text-white hover:bg-red-700 focus:ring-2 focus:ring-red-300"
-                        @click="handleDeleteTable(row.order_id)"
+                        @click="handleDeleteOrder(row.order_id)"
                     >
                         Delete
                     </button>
@@ -82,152 +82,137 @@
             </BaseTable>
         </div>
 
-        <!-- Modal Background -->
-        <!-- <div
-            ref="AddModal"
-            tabindex="-1"
-            class="fixed inset-0 z-50 flex hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto backdrop-blur-sm md:inset-0"
-        >
-            <div class="relative mx-auto my-auto flex max-h-full w-full max-w-2xl items-center justify-center p-4">
-                <div class="relative rounded-lg bg-white shadow-sm dark:bg-gray-700">
-                    <div class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600">
-                        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Create Table</h2>
-                        <button
-                            @click="handleCloseModal"
-                            type="button"
-                            class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-                        >
-                            <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                <path
-                                    stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                />
-                            </svg>
-                            <span class="sr-only">Close modal</span>
-                        </button>
-                    </div>
-                    <form ref="formRef" @submit.prevent="submitTable">
-                        <div class="grid grid-cols-1 gap-4 space-y-4 p-4 md:grid-cols-2 md:p-5">
-                            <div class="mb-4">
-                                <label for="table-number" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Table Number</label>
-                                <input
-                                    type="text"
-                                    id="table_number"
-                                    v-model="newTable.table_number"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
-                                    required
-                                />
-                            </div>
-                            <div class="mb-4">
-                                <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Table Status</label>
-                                <select
-                                    id="status"
-                                    v-model="newTable.status"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
-                                    required
-                                >
-                                    <option value="" disabled>Select status</option>
-                                    <option value="available">Available</option>
-                                    <option value="reserved">Reserved</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-end rounded-b border-t border-gray-200 p-4 md:p-5 dark:border-gray-600">
-                            <button
-                                type="submit"
-                                class="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                            >
-                                Create
-                            </button>
-                            <button
-                                type="button"
-                                @click="handleCloseModal"
-                                class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div> -->
-
-        <!-- Edit Modal -->
-        <!-- <div
+        <!-- Edit Order Modal -->
+        <div
             ref="EditModal"
             tabindex="-1"
-            class="fixed inset-0 z-50 flex hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto backdrop-blur-sm md:inset-0"
+            class="fixed inset-0 z-50 flex hidden h-full w-full items-center justify-center overflow-auto bg-black/30 backdrop-blur-sm"
         >
-            <div class="relative mx-auto my-auto flex max-h-full w-full max-w-2xl items-center justify-center p-4">
-                <div class="relative w-full rounded-lg bg-white shadow-sm dark:bg-gray-700">
-                    <div class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600">
-                        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Edit Product</h2>
-                        <button
-                            @click="handleCloseEditModal"
-                            type="button"
-                            class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-                        >
-                            <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                <path
-                                    stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                />
+            <div class="relative mx-auto my-8 w-full max-w-4xl px-4">
+                <div class="rounded-xl bg-white shadow-lg dark:bg-gray-800">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between border-b px-6 py-4 dark:border-gray-700">
+                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Edit Order</h2>
+                        <button @click="handleCloseEditModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                            <span class="sr-only">Close modal</span>
                         </button>
                     </div>
-                    <form ref="formRef" @submit.prevent="submitEditTable">
-                        <div class="grid grid-cols-1 gap-4 space-y-4 p-4 md:grid-cols-2 md:p-5">
-                            <input type="hidden" v-model="editTable.table_id" />
-                            <div class="mb-4">
-                                <label for="table-number" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Table Number</label>
-                                <input
-                                    type="text"
-                                    id="table_number"
-                                    v-model="editTable.table_number"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
-                                    required
-                                />
+
+                    <form @submit.prevent="submitEditOrder">
+                        <!-- Order Info -->
+                        <div class="grid grid-cols-1 gap-6 px-6 py-4 md:grid-cols-2">
+                            <input type="hidden" v-model="editOrder.order_id" />
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Order Type</label>
+                                <select v-model="editOrder.order_type" class="form-select w-full dark:bg-gray-700 dark:text-white">
+                                    <option value="dine_in">Dine In</option>
+                                    <option value="take_out">Take Out</option>
+                                </select>
                             </div>
-                            <div class="mb-4">
-                                <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Table Status</label>
-                                <select
-                                    id="status"
-                                    v-model="editTable.status"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
-                                    required
-                                >
-                                    <option value="" disabled>Select status</option>
-                                    <option value="available">Available</option>
-                                    <option value="reserved">Reserved</option>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                                <select v-model="editOrder.status" class="form-select w-full dark:bg-gray-700 dark:text-white">
+                                    <option value="pending">Pending</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="flex items-center justify-end rounded-b border-t border-gray-200 p-4 md:p-5 dark:border-gray-600">
-                            <button
-                                type="submit"
-                                class="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+
+                        <!-- Product Selector -->
+                        <div class="border-t border-b px-6 py-4 dark:border-gray-700">
+                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Add Product</label>
+                            <div class="flex gap-2">
+                                <select v-model="selectedProduct" class="form-select flex-1 dark:bg-gray-700 dark:text-white">
+                                    <option disabled value="">Select a product</option>
+                                    <option v-for="product in editOrder.products" :key="product.product_id" :value="product">
+                                        {{ product.product_name }} - ₱{{ product.price }}
+                                    </option>
+                                </select>
+                                <button
+                                    @click="addProductToOrder"
+                                    type="button"
+                                    class="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+                                >
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Ordered Items -->
+                        <div class="px-6 py-4">
+                            <h3 class="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200">Ordered Items</h3>
+
+                            <div
+                                v-for="(item, index) in editOrder.ordered_items"
+                                :key="item.product_id"
+                                class="mb-4 rounded-lg border p-4 shadow-sm dark:border-gray-600 dark:bg-gray-700"
                             >
-                                Save Changes
-                            </button>
-                            <button
-                                type="button"
-                                @click="handleCloseEditModal"
-                                class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
-                            >
-                                Cancel
-                            </button>
+                                <div class="grid grid-cols-1 items-center gap-4 md:grid-cols-4">
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Product</label>
+                                        <input
+                                            type="text"
+                                            :value="item.product_name"
+                                            disabled
+                                            class="w-full rounded-md border-gray-300 dark:bg-gray-600 dark:text-white"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Quantity</label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            v-model.number="item.quantity"
+                                            @input="updateItemTotal(index)"
+                                            class="w-full rounded-md border-gray-300 dark:bg-gray-600 dark:text-white"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Total</label>
+                                        <input
+                                            type="text"
+                                            :value="'₱' + (item.quantity * item.price).toFixed(2)"
+                                            disabled
+                                            class="w-full rounded-md border-gray-300 dark:bg-gray-600 dark:text-white"
+                                        />
+                                    </div>
+
+                                    <div class="mt-6 flex items-center justify-end md:mt-0">
+                                        <button type="button" @click="removeItem(index)" class="text-sm text-red-600 hover:underline">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="flex items-center justify-between border-t px-6 py-4 dark:border-gray-700">
+                            <p class="text-lg font-semibold text-gray-800 dark:text-gray-200">Total Amount: ₱{{ totalAmount }}</p>
+                            <div class="flex gap-2">
+                                <button
+                                    type="submit"
+                                    class="rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                >
+                                    Save Changes
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="handleCloseEditModal"
+                                    class="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
-        </div> -->
+        </div>
     </AppLayout>
 </template>
 
@@ -238,7 +223,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const columns = [
     { label: '#', key: 'count' },
@@ -258,14 +243,19 @@ const orders = ref<{
         order_id: string;
         customer_name: string;
         status: string;
-        total_amount: string;
+        total_amount: number;
         order_type: string;
         ordered_items: Array<{
             product_id: string;
             product_name: string;
             quantity: number;
-            price: string;
-            total: string;
+            price: number;
+            total: number;
+        }>;
+        products: Array<{
+            product_id: string;
+            product_name: string;
+            price: number;
         }>;
     }>;
     pagination: {
@@ -322,75 +312,35 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const visible = ref(false);
 
-const newOrder = ref<{
-    order_id?: string;
-    status?: string;
-    total_amount?: number;
-    order_type?: string;
-}>({
-    order_id: '',
-    status: 'Pending',
-    total_amount: 0,
-    order_type: 'Dine-in',
-});
-
-// Table Add Modal logic
-const AddModal = ref<HTMLElement | null>(null);
-const formRef = ref<HTMLFormElement | null>(null);
-
-const handleOpenModal = () => {
-    visible.value = true;
-    if (AddModal.value) {
-        AddModal.value.classList.remove('hidden');
-    }
-};
-
-const handleCloseModal = () => {
-    visible.value = false;
-    newOrder.value = {
-        order_id: '',
-        status: 'Pending',
-        total_amount: 0,
-        order_type: 'Dine-in',
-    };
-    if (AddModal.value) {
-        AddModal.value.classList.add('hidden');
-    }
-};
-
-const submitTable = async () => {
-    const route_url = route('tables.store');
-    const formData = new FormData();
-    if (newTable.value.table_id && newTable.value.table_id !== '') {
-        formData.append('table_id', newTable.value.table_id);
-    }
-    formData.append('table_number', newTable.value.table_number.toString());
-    formData.append('status', newTable.value.status);
-    try {
-        const response = await axios.post(route_url, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        if (response.data.result == true) {
-            if (formRef.value) formRef.value.reset();
-            newTable.value = {
-                table_id: '',
-                table_number: 0,
-                status: 'Available', // Reset to default
-            };
-            handleCloseModal();
-            reload();
-            notify(response.data.message, 'success');
-        }
-    } catch (error: any) {
-        notify('Error creating/updating table', error);
-    }
-};
-
 // Table Edit Modal logic
 const EditModal = ref<HTMLElement | null>(null);
-const editTable = ref<{ table_id?: string; table_number?: number; status?: string }>({ table_id: '', table_number: 0, status: 'Available' });
+const editOrder = ref<{
+    order_id: string;
+    customer_name: string;
+    order_type: string;
+    total_amount: number;
+    status: string;
+    ordered_items: Array<{
+        product_id: string;
+        product_name: string;
+        quantity: number;
+        price: number;
+        total: number;
+    }>;
+    products: Array<{
+        product_id: string;
+        product_name: string;
+        price: number;
+    }>;
+}>({
+    order_id: '',
+    customer_name: '',
+    order_type: '',
+    total_amount: 0,
+    status: '',
+    ordered_items: [],
+    products: [],
+});
 
 const handleOpenEditModal = () => {
     visible.value = true;
@@ -401,36 +351,107 @@ const handleOpenEditModal = () => {
 
 const handleCloseEditModal = () => {
     visible.value = false;
-    editTable.value = { table_id: '', table_number: 0 };
+    editOrder.value = {
+        order_id: '',
+        customer_name: '',
+        order_type: '',
+        total_amount: 0,
+        status: '',
+        ordered_items: [],
+        products: [],
+    };
     if (EditModal.value) {
         EditModal.value.classList.add('hidden');
     }
 };
+const selectedProduct = ref('');
 
-const fetchTableDetails = async (tableId: string) => {
-    const route_url = route('tables.edit', tableId);
+const addProductToOrder = () => {
+    if (!selectedProduct.value) return;
+
+    const exists = editOrder.value.ordered_items.find((item) => item.product_id === selectedProduct.value.product_id);
+
+    if (exists) {
+        exists.quantity += 1;
+    } else {
+        editOrder.value.ordered_items.push({
+            product_id: selectedProduct.value.product_id,
+            product_name: selectedProduct.value.product_name,
+            quantity: 1,
+            price: parseFloat(selectedProduct.value.price),
+            total: parseFloat(selectedProduct.value.price),
+        });
+    }
+
+    selectedProduct.value = '';
+    calculateTotalAmount();
+};
+
+const updateItemTotal = (index) => {
+    const item = editOrder.value.ordered_items[index];
+    item.total = item.quantity * item.price;
+    calculateTotalAmount();
+};
+
+const removeItem = (index) => {
+    editOrder.value.ordered_items.splice(index, 1);
+    calculateTotalAmount();
+};
+
+const calculateTotalAmount = () => {
+    editOrder.value.total_amount = editOrder.value.ordered_items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+};
+
+const totalAmount = computed(() => editOrder.value.total_amount);
+
+const fetchTableDetails = async (orderId: string) => {
+    const route_url = route('orders.edit', orderId);
     try {
         const response = await axios.get(route_url);
+
         if (response.data.result === true) {
-            editTable.value = {
-                table_id: response.data.data.table_id,
-                table_number: response.data.data.table_number,
-                status: response.data.data.status,
+            const data = response.data.data;
+
+            editOrder.value = {
+                order_id: data.order_id,
+                customer_name: '',
+                order_type: data.order_type,
+                total_amount: data.total_amount,
+                status: data.status,
+                ordered_items: data.ordered_items.map((item: any) => ({
+                    product_id: item.product_id,
+                    product_name: item.product_name,
+                    quantity: item.quantity,
+                    price: item.price,
+                    total: item.total,
+                })),
+                products: data.products.map((product: any) => ({
+                    product_id: product.product_id,
+                    product_name: product.product_name,
+                    price: parseFloat(product.product_price).toFixed(2),
+                })),
             };
+
             handleOpenEditModal();
         }
     } catch (error: any) {
-        notify('Error fetching table details', 'error');
-        console.error('Error:', error.message);
+        notify('Error fetching order details', 'error');
     }
 };
 
-const submitEditTable = async () => {
-    const route_url = route('tables.store');
+const submitEditOrder = async () => {
+    const route_url = route('orders.store');
     const payload = {
-        table_id: editTable.value.table_id,
-        table_number: editTable.value.table_number,
-        status: editTable.value.status,
+        order_id: editOrder.value.order_id,
+        order_type: editOrder.value.order_type,
+        status: editOrder.value.status,
+        ordered_items: editOrder.value.ordered_items.map((item) => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: item.price,
+            total: item.total,
+        })),
+        total_amount: editOrder.value.total_amount,
     };
     try {
         const response = await axios.post(route_url, payload);
@@ -440,14 +461,13 @@ const submitEditTable = async () => {
             notify(response.data.message, 'success');
         }
     } catch (error: any) {
-        notify('Error updating table', 'error');
-        console.error('Error:', error.message);
+        notify('Error updating order', 'error');
     }
 };
 
-const handleDeleteTable = async (tableId: string) => {
-    const route_url = route('tables.destroy', tableId);
-    if (confirm('Are you sure you want to delete this table?')) {
+const handleDeleteOrder = async (orderId: string) => {
+    const route_url = route('orders.destroy', orderId);
+    if (confirm('Are you sure you want to delete this order?')) {
         try {
             const response = await axios.post(route_url);
             if (response.status === 200) {
@@ -455,8 +475,7 @@ const handleDeleteTable = async (tableId: string) => {
                 reload();
             }
         } catch (error) {
-            notify('Error deleting table', 'error');
-            console.error('Error:', error);
+            notify('Error deleting order', 'error');
         }
     }
 };
