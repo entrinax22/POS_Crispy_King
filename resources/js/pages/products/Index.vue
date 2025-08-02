@@ -33,7 +33,7 @@
                                 id="default-search"
                                 v-model="search"
                                 class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 ps-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                                placeholder="Search permissions..."
+                                placeholder="Search product..."
                             />
                         </div>
                     </form>
@@ -105,7 +105,7 @@
                     <!-- Modal body -->
                     <form ref="formRef" @submit.prevent="submitProduct">
                         <div class="grid grid-cols-1 gap-4 space-y-4 p-4 md:grid-cols-2 md:p-5">
-                            <div class="mb-4">
+                            <div class="mb-4 md:col-span-2">
                                 <label for="product-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Name</label>
                                 <input
                                     type="text"
@@ -115,16 +115,7 @@
                                     required
                                 />
                             </div>
-                            <div class="mb-4">
-                                <label for="product-code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Code</label>
-                                <input
-                                    type="text"
-                                    id="product-code"
-                                    v-model="newProduct.product_code"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
-                                    required
-                                />
-                            </div>
+
                             <div class="mb-4 md:col-span-2">
                                 <label for="product-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                                     >Product Description</label
@@ -224,22 +215,12 @@
                     <form ref="formRef" @submit.prevent="submitProduct">
                         <div class="grid grid-cols-1 gap-4 space-y-4 p-4 md:grid-cols-2 md:p-5">
                             <input type="hidden" v-model="newProduct.product_id" />
-                            <div class="mb-4">
+                            <div class="mb-4 md:col-span-2">
                                 <label for="product-name-edit" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Name</label>
                                 <input
                                     type="text"
                                     id="product-name-edit"
                                     v-model="newProduct.product_name"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
-                                    required
-                                />
-                            </div>
-                            <div class="mb-4">
-                                <label for="product-code-edit" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Code</label>
-                                <input
-                                    type="text"
-                                    id="product-code-edit"
-                                    v-model="newProduct.product_code"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
                                     required
                                 />
@@ -348,7 +329,6 @@ const products = ref<{
     data: Array<{
         product_id: string;
         product_name: string;
-        product_code: string;
         product_description: string;
         product_price: string;
         product_quantity: number;
@@ -424,7 +404,6 @@ const visible = ref(false);
 const newProduct = ref<{
     product_id?: string;
     product_name: string;
-    product_code: string;
     product_description: string;
     product_price: number;
     product_quantity: number;
@@ -432,7 +411,6 @@ const newProduct = ref<{
 }>({
     product_id: '',
     product_name: '',
-    product_code: '',
     product_description: '',
     product_price: 0,
     product_quantity: 0,
@@ -462,7 +440,6 @@ const submitProduct = async () => {
         formData.append('product_id', newProduct.value.product_id);
     }
     formData.append('product_name', newProduct.value.product_name);
-    formData.append('product_code', newProduct.value.product_code);
     formData.append('product_description', newProduct.value.product_description);
     formData.append('product_price', newProduct.value.product_price.toString());
     formData.append('product_quantity', newProduct.value.product_quantity.toString());
@@ -481,7 +458,6 @@ const submitProduct = async () => {
             newProduct.value = {
                 product_id: '',
                 product_name: '',
-                product_code: '',
                 product_description: '',
                 product_price: 0,
                 product_quantity: 0,
@@ -512,7 +488,6 @@ const handleCloseEditModal = () => {
     newProduct.value = {
         product_id: '',
         product_name: '',
-        product_code: '',
         product_description: '',
         product_price: 0,
         product_quantity: 0,
@@ -532,7 +507,6 @@ const fetchProductDetails = async (productId: string) => {
             newProduct.value = {
                 product_id: response.data.data.product_id,
                 product_name: response.data.data.product_name,
-                product_code: response.data.data.product_code,
                 product_description: response.data.data.product_description,
                 product_price: response.data.data.product_price,
                 product_quantity: response.data.data.product_quantity,
@@ -567,41 +541,7 @@ const onImageChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files[0]) {
         const file = target.files[0];
-        // You may want to upload the file or convert it to base64, here we just store the file object
         newProduct.value.product_image = file;
     }
 };
-
-// const AddPermissionModal = ref<HTMLElement | null>(null);
-// const permissionFormRef = ref<HTMLFormElement | null>(null);
-// const newPermission = ref({ name: '' });
-
-// const handleOpenPermissionModal = () => {
-//     if (AddPermissionModal.value) {
-//         AddPermissionModal.value.classList.remove('hidden');
-//     }
-// };
-// const handleClosePermissionModal = () => {
-//     if (AddPermissionModal.value) {
-//         AddPermissionModal.value.classList.add('hidden');
-//     }
-// };
-
-// const submitPermission = async () => {
-//     const route_url = route('permissions.store');
-//     try {
-//         const response = await axios.post(route_url, newPermission.value);
-//         if (response.data.result == true) {
-//             if (permissionFormRef.value) permissionFormRef.value.reset();
-//             newPermission.value = { name: '' };
-//             handleClosePermissionModal();
-//             notify("Permission created successfully", "success");
-//         } else {
-//             notify(response.data.message, "error");
-//             console.error('Error creating permission:', response.data);
-//         }
-//     } catch (error) {
-//         console.error('Error:', error);
-//     }
-// };
 </script>

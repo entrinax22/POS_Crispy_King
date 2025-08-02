@@ -4,13 +4,13 @@
             class="scrollbar-thin scrollbar-thumb-orange-200 scrollbar-track-orange-50 max-h-[60vh] space-y-6 overflow-y-auto md:max-h-none"
             @submit.prevent="submitOrder"
         >
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="grid grid-cols-1 gap-4">
                 <div>
-                    <label class="mb-1 block text-sm font-medium text-gray-700">Full Name</label>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">Address</label>
                     <input
-                        v-model="customerName"
+                        v-model="address"
                         type="text"
-                        placeholder="e.g. Juan Dela Cruz"
+                        placeholder="e.g. Purok 5, Bgry. San Juan"
                         required
                         class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-orange-400"
                     />
@@ -18,9 +18,31 @@
                 <div>
                     <label class="mb-1 block text-sm font-medium text-gray-700">Contact Number</label>
                     <input
-                        v-model="contactNumber"
+                        v-model="phone_number"
                         type="tel"
                         placeholder="e.g. 0917-123-4567"
+                        required
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-orange-400"
+                    />
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">Order Type</label>
+                    <select
+                        v-model="orderType"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-orange-400"
+                        required
+                    >
+                        <option value="" disabled>Select order type</option>
+                        <option value="dine_in">Dine In</option>
+                        <option value="delivery">Delivery</option>
+                    </select>
+                </div>
+                <div v-if="orderType === 'delivery'">
+                    <label class="mb-1 block text-sm font-medium text-gray-700">Delivery Time</label>
+                    <input
+                        v-model="delivery_time"
+                        type="datetime-local"
+                        placeholder="Select delivery time"
                         required
                         class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-orange-400"
                     />
@@ -36,7 +58,7 @@
                     class="relative flex flex-col gap-3 rounded-xl border border-orange-200 bg-white p-4 shadow-sm md:flex-row md:items-end md:gap-4"
                 >
                     <div class="flex-1">
-                        <div class="text-lg font-bold text-orange-700">{{ item.product }}</div>
+                        <div class="text-lg font-bold text-orange-700">{{ item.product.product_name }}</div>
                         <div class="text-sm text-gray-500">
                             Qty: <span class="font-semibold text-gray-700">{{ item.quantity }}</span>
                         </div>
@@ -89,22 +111,20 @@
         <ProductSelectorModal :show="showProductModal" :products="products" @close="showProductModal = false" @add="addProductFromModal" />
     </section>
 </template>
-
 <script>
+import axios from 'axios';
 import ProductSelectorModal from './ProductSelectorModal.vue';
+
 export default {
     name: 'CustomerOrderForm',
     components: { ProductSelectorModal },
     data() {
         return {
-            customerName: '',
-            contactNumber: '',
-            orderNotes: '',
-            products: [
-                { name: 'Signature Fried Chicken', price: 120 },
-                { name: 'Chicken Burger', price: 95 },
-                { name: 'Family Meal', price: 450 },
-            ],
+            address: '',
+            phone_number: '',
+            orderType: 'dine_in',
+            delivery_time: '',
+            products: [],
             items: [],
             showProductModal: false,
         };
@@ -117,42 +137,59 @@ export default {
             }, 0);
         },
     },
+    mounted() {
+        this.fetchProductData();
+    },
     methods: {
+        fetchProductData() {
+            axios
+                .get(route('products.list'))
+                .then((response) => {
+                    if (response.data.result === true) {
+                        this.products = response.data.data;
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching products:', error);
+                });
+        },
         addProductFromModal({ product, quantity }) {
             this.items.push({ product, quantity });
         },
         removeItem(idx) {
             this.items.splice(idx, 1);
         },
-        getProductPrice(productName) {
-            const found = this.products.find((p) => p.name === productName);
-            return found ? found.price : 0;
+        getProductPrice(product) {
+            return parseFloat(product?.product_price || 0);
         },
         getSubtotal(item) {
             return this.getProductPrice(item.product) * (item.quantity || 0);
         },
         submitOrder() {
-            const order = {
-                name: this.customerName,
-                contact: this.contactNumber,
-                notes: this.orderNotes,
-                items: this.items
-                    .filter((i) => i.product && i.quantity > 0)
-                    .map((i) => ({
-                        product: i.product,
-                        quantity: i.quantity,
-                        price: this.getProductPrice(i.product),
-                        subtotal: this.getSubtotal(i),
+            axios
+                .post(route('orders.orderOnline'), {
+                    cart: this.items.map((item) => ({
+                        product_id: item.product.product_id,
+                        product_price: parseFloat(item.product.product_price),
+                        product_quantity: item.quantity,
                     })),
-                total: this.totalAmount,
-            };
-            // eslint-disable-next-line no-alert
-            alert('Order submitted!\n' + JSON.stringify(order, null, 2));
-            // Reset form
-            this.customerName = '';
-            this.contactNumber = '';
-            this.orderNotes = '';
-            this.items = [];
+                    address: this.address,
+                    phone_number: this.phone_number,
+                    total_amount: this.totalAmount,
+                    orderType: 'dine_in',
+                    delivery_time: this.delivery_time,
+                    status: 'pending',
+                })
+                .then((response) => {
+                    this.address = '';
+                    this.phone_number = '';
+                    this.orderNotes = '';
+                    this.items = [];
+                    this.$emit('order-success');
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
         },
     },
 };

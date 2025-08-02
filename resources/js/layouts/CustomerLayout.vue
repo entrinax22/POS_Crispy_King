@@ -85,7 +85,7 @@
                         </button>
                         <h2 class="mb-2 text-center text-2xl font-bold text-orange-700">Order Online</h2>
                         <p class="mb-6 text-center text-gray-500">Fill out the form below to place your order. We'll get it ready for you!</p>
-                        <CustomerOrderForm />
+                        <CustomerOrderForm @order-success="handleOrderSuccess" />
                     </div>
                 </div>
             </transition>
@@ -113,6 +113,7 @@
             </div>
         </footer>
     </div>
+    <SuccessModal :show="showSuccessModal" message="Order placed successfully!" @close="showSuccessModal = false" />
 </template>
 
 <script>
@@ -120,6 +121,7 @@ import CustomerAbout from '../components/CustomerAbout.vue';
 import CustomerHero from '../components/CustomerHero.vue';
 import CustomerMenu from '../components/CustomerMenu.vue';
 import CustomerOrderForm from '../components/CustomerOrderForm.vue';
+import SuccessModal from '../components/CustomerSuccessModal.vue';
 import CustomerTableReservationForm from '../components/CustomerTableReservationForm.vue';
 
 export default {
@@ -130,6 +132,7 @@ export default {
         CustomerMenu,
         CustomerOrderForm,
         CustomerTableReservationForm,
+        SuccessModal,
     },
     data() {
         return {
@@ -138,11 +141,16 @@ export default {
             showMobileNav: false,
             user: this.$page.props.auth.user,
             dropdownOpen: false,
+            showSuccessModal: false,
         };
     },
     methods: {
         logout() {
             this.$inertia.post('/logout');
+        },
+        handleOrderSuccess() {
+            this.showOrderModal = false;
+            this.showSuccessModal = true;
         },
     },
 };

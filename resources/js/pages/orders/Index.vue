@@ -33,7 +33,7 @@
                                 id="default-search"
                                 v-model="search"
                                 class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 ps-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                                placeholder="Search permissions..."
+                                placeholder="Search order..."
                             />
                         </div>
                     </form>
@@ -110,6 +110,7 @@
                                 <select v-model="editOrder.order_type" class="form-select w-full dark:bg-gray-700 dark:text-white">
                                     <option value="dine_in">Dine In</option>
                                     <option value="take_out">Take Out</option>
+                                    <option value="delivery">Delivery</option>
                                 </select>
                             </div>
                             <div>
@@ -117,6 +118,7 @@
                                 <select v-model="editOrder.status" class="form-select w-full dark:bg-gray-700 dark:text-white">
                                     <option value="pending">Pending</option>
                                     <option value="completed">Completed</option>
+                                    <option value="delivered">Delivered</option>
                                     <option value="cancelled">Cancelled</option>
                                 </select>
                             </div>
@@ -364,7 +366,7 @@ const handleCloseEditModal = () => {
         EditModal.value.classList.add('hidden');
     }
 };
-const selectedProduct = ref('');
+const selectedProduct = ref({ product_id: '', product_name: '', price: '' });
 
 const addProductToOrder = () => {
     if (!selectedProduct.value) return;
@@ -383,17 +385,17 @@ const addProductToOrder = () => {
         });
     }
 
-    selectedProduct.value = '';
+    selectedProduct.value = { product_id: '', product_name: '', price: '' };
     calculateTotalAmount();
 };
 
-const updateItemTotal = (index) => {
+const updateItemTotal = (index: any) => {
     const item = editOrder.value.ordered_items[index];
     item.total = item.quantity * item.price;
     calculateTotalAmount();
 };
 
-const removeItem = (index) => {
+const removeItem = (index: any) => {
     editOrder.value.ordered_items.splice(index, 1);
     calculateTotalAmount();
 };

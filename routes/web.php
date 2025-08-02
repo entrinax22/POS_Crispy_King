@@ -40,6 +40,7 @@ Route::middleware(['auth', 'role:admin|cashier'])->group(function () {
 
     Route::post('/checkout', [POSController::class, 'create'])->name('pos.checkout');
     Route::get('/order/update/{order_id}', [POSController::class, 'update'])->name('pos.update');
+    Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
 
     Route::get('/tables', [TableController::class, 'index'])->name('tables.index');
     Route::get('/tables/list', [TableController::class, 'list'])->name('tables.list');
@@ -52,11 +53,10 @@ Route::middleware(['auth', 'role:admin|cashier'])->group(function () {
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}', [OrderController::class, 'edit'])->name('orders.edit');
     Route::post('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
+
 });
 
 Route::middleware(['auth', 'role:admin|customer'])->group(function () {
-    Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
-
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/list', [ProductController::class, 'list'])->name('products.list');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
@@ -70,6 +70,8 @@ Route::middleware(['auth', 'role:admin|customer'])->group(function () {
 });
 Route::middleware(['auth'])->group(function () {
     Route::get('/tables/reserve', [TableController::class, 'reserve'])->name('tables.reserve');
+    
+    Route::post('/orderOnline', [OrderController::class, 'orderOnline'])->name('orders.orderOnline');
 });
 
 

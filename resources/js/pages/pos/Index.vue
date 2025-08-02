@@ -113,7 +113,7 @@
                     </div>
                     <button
                         class="mt-4 w-full rounded-lg bg-yellow-500 py-2 font-bold text-white shadow transition hover:bg-yellow-600"
-                        @click="proceedToCheckout"
+                        @click="handleOpenCheckoutModal"
                     >
                         Proceed to Checkout
                     </button>
@@ -270,6 +270,167 @@
                 </div>
             </div>
         </div>
+
+        <!-- Checkout Modal -->
+        <div
+            ref="CheckoutModal"
+            tabindex="-1"
+            class="fixed inset-0 z-50 flex hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto backdrop-blur-sm md:inset-0"
+        >
+            <div class="relative flex max-h-full w-full max-w-2xl items-center justify-center p-4">
+                <div class="relative w-full rounded-lg bg-white shadow-sm dark:bg-gray-700">
+                    <div class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600">
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Checkout</h2>
+                        <button
+                            @click="handleCloseCheckoutModal"
+                            type="button"
+                            class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+                        >
+                            <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                <path
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                />
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                    </div>
+                    <form ref="formRef" @submit.prevent="proceedToCheckout">
+                        <div class="gap-4 space-y-4 p-4 md:grid-cols-2 md:p-5">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Total Amount</label>
+                                <input
+                                    type="text"
+                                    :value="formatCurrency(cartTotal)"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
+                                    required
+                                    readonly
+                                />
+                            </div>
+                            <!-- Amount Received -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount Received</label>
+                                <input
+                                    ref="amountInput"
+                                    type="number"
+                                    v-model.number="checkout.amount_received"
+                                    placeholder="Enter amount"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
+                                    required
+                                />
+                            </div>
+
+                            <!-- Change -->
+                            <!-- <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Change</label>
+                                <input
+                                    type="text"
+                                    :value="formatCurrency(checkout.change)"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:text-white"
+                                    readonly
+                                />
+                            </div> -->
+                        </div>
+                        <div class="flex items-center justify-end rounded-b border-t border-gray-200 p-4 md:p-5 dark:border-gray-600">
+                            <button
+                                type="submit"
+                                class="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            >
+                                Save Changes
+                            </button>
+                            <button
+                                type="button"
+                                @click="handleCloseCheckoutModal"
+                                class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout Details Modal -->
+        <div
+            ref="CheckoutDetailsModal"
+            tabindex="-1"
+            class="fixed inset-0 z-50 flex hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto backdrop-blur-sm md:inset-0"
+        >
+            <div class="relative flex max-h-full w-full max-w-md items-center justify-center p-4">
+                <div class="relative w-full rounded-lg bg-white shadow-sm dark:bg-gray-700">
+                    <div class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600">
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Checkout Details</h2>
+                        <button
+                            @click="handleCloseCheckoutDetailsModal"
+                            type="button"
+                            class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+                        >
+                            <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                <path
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                />
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-6 p-6 text-sm text-gray-700 dark:text-gray-300">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M12 8V6a4 4 0 10-8 0v2H3a1 1 0 000 2h1v6a2 2 0 002 2h8a2 2 0 002-2v-6h1a1 1 0 100-2h-1zM8 6a2 2 0 114 0v2H8V6z"
+                                    />
+                                </svg>
+                                <span class="font-medium">Total Amount</span>
+                            </div>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ formatCurrency(finalCheckout.total) }}</span>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <svg class="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M12 8V6a4 4 0 10-8 0v2H3a1 1 0 000 2h1v6a2 2 0 002 2h8a2 2 0 002-2v-6h1a1 1 0 100-2h-1zM8 6a2 2 0 114 0v2H8V6z"
+                                    />
+                                </svg>
+                                <span class="font-medium">Amount Received</span>
+                            </div>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ formatCurrency(finalCheckout.amount_received) }}</span>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <svg class="h-5 w-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3a1 1 0 102 0V7zm-1 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"
+                                    />
+                                </svg>
+                                <span class="font-medium">Change</span>
+                            </div>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ formatCurrency(finalCheckout.change) }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-end rounded-b border-t border-gray-200 p-4 md:p-5 dark:border-gray-600">
+                        <button
+                            type="button"
+                            @click="handleCloseCheckoutDetailsModal"
+                            class="rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </AppLayout>
 </template>
 
@@ -279,7 +440,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
 const notify = useNotify();
 const products = ref<any>({ data: [] });
@@ -295,6 +456,44 @@ const newProduct = ref({
     product_price: 0,
     quantity: 1,
 });
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'POS Terminal',
+        href: '/pos',
+    },
+];
+watch(search, (newValue) => {
+    fetchProductData(1);
+});
+
+const fetchProductData = async (page = 1) => {
+    try {
+        const response = await axios.get(route('products.list', { page, search: search.value }));
+        if (response.data.result === true) {
+            products.value = response.data;
+        }
+    } catch (error) {
+        console.error('Error fetching products:', error);
+    }
+};
+
+const reload = () => {
+    fetchProductData();
+};
+
+onMounted(() => {
+    fetchProductData(1);
+});
+
+const vFocus = {
+    mounted(el: HTMLElement) {
+        nextTick(() => el.focus());
+    },
+    updated(el: HTMLElement) {
+        nextTick(() => el.focus());
+    },
+};
 
 const handleOpenAddModal = (product: any) => {
     addModalVisible.value = true;
@@ -382,31 +581,83 @@ const setOrderType = (type: string) => {
     orderType.value = type;
 };
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'POS Terminal',
-        href: '/pos',
-    },
-];
+const CheckoutModal = ref<HTMLElement | null>(null);
+const amountInput = ref<HTMLInputElement | null>(null);
 
-const fetchProductData = async (page = 1) => {
-    try {
-        const response = await axios.get(route('products.list', { page, search: search.value }));
-        if (response.data.result === true) {
-            products.value = response.data;
-        }
-    } catch (error) {
-        console.error('Error fetching products:', error);
+const checkoutModalVisible = ref(false);
+
+const handleOpenCheckoutModal = () => {
+    checkoutModalVisible.value = true;
+    if (CheckoutModal.value) {
+        CheckoutModal.value.classList.remove('hidden');
+        nextTick(() => {
+            amountInput.value?.focus();
+        });
     }
 };
 
-const reload = () => {
-    fetchProductData();
+const handleCloseCheckoutModal = () => {
+    checkoutModalVisible.value = false;
+    if (CheckoutModal.value) {
+        CheckoutModal.value.classList.add('hidden');
+    }
 };
 
-onMounted(() => {
-    fetchProductData(1);
-    // fetchRoles();
+const checkout = ref({
+    amount_received: null,
+    change: 0,
+});
+
+const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'PHP',
+    }).format(value);
+};
+
+watch(
+    () => checkout.value?.amount_received,
+    (newValue) => {
+        if (typeof newValue === 'number' && cartTotal.value != null) {
+            if (newValue >= cartTotal.value) {
+                checkout.value.change = newValue - cartTotal.value;
+            } else {
+                checkout.value.change = 0;
+            }
+        } else {
+            checkout.value.change = 0;
+        }
+    },
+);
+
+const CheckoutDetailsModal = ref<HTMLElement | null>(null);
+const checkoutDetailsModalVisible = ref(false);
+
+const handleOpenCheckoutDetailsModal = () => {
+    checkoutDetailsModalVisible.value = true;
+    if (CheckoutDetailsModal.value) {
+        CheckoutDetailsModal.value.classList.remove('hidden');
+    }
+};
+
+const handleCloseCheckoutDetailsModal = () => {
+    checkoutDetailsModalVisible.value = false;
+    if (CheckoutDetailsModal.value) {
+        CheckoutDetailsModal.value.classList.add('hidden');
+        checkout.value.amount_received = null;
+        checkout.value.change = 0;
+        finalCheckout.value = {
+            amount_received: 0,
+            change: 0,
+            total: 0,
+        };
+    }
+};
+
+const finalCheckout = ref({
+    amount_received: 0,
+    change: 0,
+    total: 0,
 });
 
 const proceedToCheckout = async () => {
@@ -414,14 +665,35 @@ const proceedToCheckout = async () => {
         notify.error('Cart is empty!');
         return;
     }
+    const amountReceived = checkout.value.amount_received || 0;
+    if (isNaN(amountReceived) || amountReceived <= 0) {
+        notify('Please enter a valid amount received.', 'error');
+        return;
+    }
+    if (amountReceived < cartTotal.value) {
+        notify('Amount received is less than the total amount.', 'error');
+        return;
+    }
     try {
         const response = await axios.post(route('pos.checkout'), {
             cart: cart.value,
             total_amount: cartTotal.value,
             orderType: orderType.value,
+            amount_received: amountReceived,
+            change: amountReceived - cartTotal.value,
+            status: 'completed',
         });
+
         if (response.data.result) {
+            finalCheckout.value = {
+                amount_received: amountReceived,
+                change: amountReceived - cartTotal.value,
+                total: cartTotal.value,
+            };
+
+            handleOpenCheckoutDetailsModal();
             notify('Order placed successfully!', 'success');
+            handleCloseCheckoutModal();
             cart.value = [];
         } else {
             notify(response.data.message || 'Checkout failed.', 'error');

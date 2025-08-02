@@ -8,12 +8,14 @@
                     <div class="mb-4">
                         <label class="mb-1 block font-medium text-gray-700">Product</label>
                         <select
-                            v-model="selectedProduct"
+                            v-model="selectedProductId"
                             required
                             class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-orange-400"
                         >
                             <option value="">Select a product</option>
-                            <option v-for="product in products" :key="product.name" :value="product.name">{{ product.name }}</option>
+                            <option v-for="product in products" :key="product.product_id" :value="product.product_id">
+                                {{ product.product_name }} - ₱{{ product.product_price }}
+                            </option>
                         </select>
                     </div>
                     <div class="mb-4">
@@ -47,15 +49,19 @@ export default {
     },
     data() {
         return {
-            selectedProduct: '',
+            selectedProductId: '',
             quantity: 1,
         };
     },
     methods: {
         addProduct() {
-            if (this.selectedProduct && this.quantity > 0) {
-                this.$emit('add', { product: this.selectedProduct, quantity: this.quantity });
-                this.selectedProduct = '';
+            const product = this.products.find((p) => p.product_id === this.selectedProductId);
+            if (product && this.quantity > 0) {
+                this.$emit('add', {
+                    product,
+                    quantity: this.quantity,
+                });
+                this.selectedProductId = '';
                 this.quantity = 1;
                 this.$emit('close');
             }

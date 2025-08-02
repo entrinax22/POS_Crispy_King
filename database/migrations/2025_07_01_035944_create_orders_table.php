@@ -14,14 +14,17 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id('order_id');
             $table->unsignedBigInteger('user_id')->nullable();
+            $table->text('address')->nullable();
+            $table->string('phone_number')->nullable();
+            $table->string('delivery_time')->nullable();
             $table->decimal('total_amount', 10, 2);
-            $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
-            $table->enum('order_type', ['dine_in', 'take_out'])->default('dine_in');
+            $table->enum('order_type', ['dine_in', 'take_out', 'delivery'])->default('dine_in');
+            $table->enum('status', ['pending', 'processing', 'completed','delivered', 'cancelled'])->default('pending');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->timestamps();
         });
     }
-
+    
     /**
      * Reverse the migrations.
      */
