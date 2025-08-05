@@ -8,6 +8,8 @@ use App\Models\Product;
 use App\Models\OrderedItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Notifications\NewOrderNotification;
 
 class OrderController extends Controller
 {
@@ -238,6 +240,23 @@ class OrderController extends Controller
             DB::table('ordered_items')->insert($orderedItems);
 
             DB::commit();
+
+            $orderId = encrypt($orderId);
+            
+            // Notify the customer
+            $user = Auth::user();
+            $userMessage = "Your order has been placed successfully with the total amount of ₱{$validated['total_amount']}.";
+            $title = 'Your order has been placed';
+            $user->notify(new NewOrderNotification($userMessage, $title, $orderId));
+
+            // Notify all admins
+            $admins = \App\Models\User::role('admin')->get(); 
+            $title = 'New Order Notification';
+            $adminMessage = "A new order has been placed by {$user->name}.";
+
+            foreach ($admins as $admin) {
+                $admin->notify(new NewOrderNotification($adminMessage, $title, $orderId));
+            }
 
             return response()->json([
                 "result" => true,

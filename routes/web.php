@@ -9,6 +9,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\NotificationController;
 
 // Route::get('/', function () {
 //     return Inertia::render('Welcome');
@@ -72,6 +73,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tables/reserve', [TableController::class, 'reserve'])->name('tables.reserve');
     
     Route::post('/orderOnline', [OrderController::class, 'orderOnline'])->name('orders.orderOnline');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/list', [NotificationController::class, 'list'])->name('notifications.list');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
 });
 
 

@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Calculator, Folder, LayoutGrid } from 'lucide-vue-next';
+import { Bell, BookOpen, Calculator, Folder, LayoutGrid } from 'lucide-vue-next';
+import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
 const page = usePage();
@@ -15,72 +14,31 @@ type MainNavItem = {
     title: string;
     href: string;
     icon: any;
+    group?: string;
     show?: boolean;
+    count?: number;
 };
 
 const mainNavItems: MainNavItem[] = [
-    {
-        title: 'Dashboard',
-        href: route('dashboard'),
-        icon: LayoutGrid,
-        show: true,
-    },
-    {
-        title: 'POS Terminal',
-        href: route('pos.index'),
-        icon: Calculator,
-        show: true,
-    },
-    {
-        title: 'Users',
-        href: route('users.index'),
-        icon: Calculator,
-        show: true,
-    },
-    {
-        title: 'Roles',
-        href: route('roles.index'),
-        icon: Folder,
-        show: true,
-    },
-    {
-        title: 'Permissions',
-        href: route('permissions.index'),
-        icon: BookOpen,
-        show: true,
-    },
-    {
-        title: 'Products',
-        href: route('products.index'),
-        icon: BookOpen,
-        show: true,
-    },
-    {
-        title: 'Tables',
-        href: route('tables.index'),
-        icon: BookOpen,
-        show: true,
-    },
-    {
-        title: 'Orders',
-        href: route('orders.index'),
-        icon: BookOpen,
-        show: true,
-    },
+    { title: 'Dashboard', href: route('dashboard'), icon: LayoutGrid, group: 'Main', show: true },
+    { title: 'POS Terminal', href: route('pos.index'), icon: Calculator, group: 'Main', show: true },
+    { title: 'Notifications', href: route('notifications.index'), icon: Bell, group: 'Main', show: true },
+    { title: 'Users', href: route('users.index'), icon: Calculator, group: 'Admin', show: true },
+    { title: 'Roles', href: route('roles.index'), icon: Folder, group: 'Admin', show: true },
+    { title: 'Permissions', href: route('permissions.index'), icon: BookOpen, group: 'Admin', show: true },
+    { title: 'Products', href: route('products.index'), icon: BookOpen, group: 'Main', show: true },
+    { title: 'Orders', href: route('orders.index'), icon: BookOpen, group: 'Main', show: true },
+    { title: 'Tables', href: route('tables.index'), icon: BookOpen, group: 'Restaurant', show: true },
 ].filter((item) => item.show === undefined || item.show);
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Github Repo',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
-    },
-];
+const groupedNavItems = computed(() => {
+    return mainNavItems.reduce((acc: Record<string, MainNavItem[]>, item) => {
+        const group = item.group ?? 'Other';
+        if (!acc[group]) acc[group] = [];
+        acc[group].push(item);
+        return acc;
+    }, {});
+});
 </script>
 
 <template>
@@ -98,11 +56,15 @@ const footerNavItems: NavItem[] = [
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <template v-for="(items, group) in groupedNavItems" :key="group">
+                <h3 class="px-4 pt-2 pb-1 text-xs font-semibold text-gray-500 uppercase">
+                    {{ group }}
+                </h3>
+                <NavMain :items="items" />
+            </template>
         </SidebarContent>
 
         <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
             <NavUser />
         </SidebarFooter>
     </Sidebar>
