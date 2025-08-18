@@ -1,12 +1,12 @@
 <template>
-    <div class="grid grid-cols-1 md:grid-cols-2 h-screen">
+    <div class="grid h-screen grid-cols-1 md:grid-cols-2">
         <!-- Left Column -->
-        <div class="hidden md:block bg-cover bg-center" style="background-image: url('/CrispyKing.png');">
+        <div class="hidden bg-cover bg-center md:block" style="background-image: url('/CrispyKing.png')">
             <!-- Add any additional content or leave empty for just the background -->
         </div>
 
         <!-- Right Column -->
-        <div class="flex items-center justify-center p-8 bg-white">
+        <div class="flex items-center justify-center bg-white p-8">
             <div class="w-full max-w-md space-y-8">
                 <!-- Welcome Message -->
                 <div class="text-center">
@@ -19,11 +19,11 @@
                     <div class="grid gap-6">
                         <!-- Email Input -->
                         <div class="mb-2">
-                            <label for="email" class="block mb-2 text-sm font-medium text-black">Email address</label>
+                            <label for="email" class="mb-2 block text-sm font-medium text-black">Email address</label>
                             <input
                                 type="email"
                                 id="email"
-                                class="bg-white border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-black focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="john.doe@company.com"
                                 v-model="form.email"
                                 required
@@ -33,11 +33,11 @@
 
                         <!-- Password Input -->
                         <div class="mb-2">
-                            <label for="password" class="block mb-2 text-sm font-medium text-black">Password</label>
+                            <label for="password" class="mb-2 block text-sm font-medium text-black">Password</label>
                             <input
                                 type="password"
                                 id="password"
-                                class="bg-white border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-black focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="•••••••••"
                                 v-model="form.password"
                                 required
@@ -54,14 +54,29 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <Button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" :tabindex="4" :disabled="form.processing">
+                        <Button
+                            type="submit"
+                            class="me-2 mb-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            :tabindex="4"
+                            :disabled="form.processing"
+                        >
                             <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                             Log in
                         </Button>
+
+                        <!-- Google Login Button -->
+                        <button
+                            @click="googleLogin"
+                            type="button"
+                            class="flex items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        >
+                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="h-5 w-5" />
+                            <span>Continue with Google</span>
+                        </button>
                     </div>
 
                     <!-- Sign Up Link -->
-                    <div class="text-center text-sm text-muted-foreground">
+                    <div class="text-muted-foreground text-center text-sm">
                         Don't have an account?
                         <TextLink :href="route('register')" :tabindex="5">Sign up</TextLink>
                     </div>
@@ -76,8 +91,7 @@ import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import AuthBase from '@/layouts/AuthLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
 
 defineProps<{
@@ -95,5 +109,9 @@ const submit = () => {
     form.post(route('login'), {
         onFinish: () => form.reset('password'),
     });
+};
+
+const googleLogin = () => {
+    window.location.href = route('google.login');
 };
 </script>

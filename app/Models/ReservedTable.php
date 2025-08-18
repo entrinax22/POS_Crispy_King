@@ -10,6 +10,8 @@ class ReservedTable extends Model
         'table_id',
         'reserved_by',
         'name',
+        'contact_number',
+        'number_guest',
         'reservation_time',
         'status',
     ];
@@ -19,7 +21,7 @@ class ReservedTable extends Model
     ];
 
     protected $table = 'reserved_tables';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'reserved_table_id';
 
     public function table()
     {

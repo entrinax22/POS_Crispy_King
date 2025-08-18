@@ -101,7 +101,7 @@
                         </button>
                         <h2 class="mb-2 text-center text-2xl font-bold text-orange-700">Table Reservation</h2>
                         <p class="mb-6 text-center text-gray-500">Reserve your table in advance for a royal experience!</p>
-                        <CustomerTableReservationForm />
+                        <CustomerTableReservationForm @table-success="handleTableSuccess" />
                     </div>
                 </div>
             </transition>
@@ -114,6 +114,7 @@
         </footer>
     </div>
     <SuccessModal :show="showSuccessModal" message="Order placed successfully!" @close="showSuccessModal = false" />
+    <CustomerTableSuccessModal :show="showTableSuccessModal" @close="showTableSuccessModal = false" />
 </template>
 
 <script>
@@ -123,7 +124,7 @@ import CustomerMenu from '../components/CustomerMenu.vue';
 import CustomerOrderForm from '../components/CustomerOrderForm.vue';
 import SuccessModal from '../components/CustomerSuccessModal.vue';
 import CustomerTableReservationForm from '../components/CustomerTableReservationForm.vue';
-
+import CustomerTableSuccessModal from '../components/CustomerTableSuccessModal.vue';
 export default {
     name: 'CustomerLayout',
     components: {
@@ -133,6 +134,7 @@ export default {
         CustomerOrderForm,
         CustomerTableReservationForm,
         SuccessModal,
+        CustomerTableSuccessModal,
     },
     data() {
         return {
@@ -142,6 +144,7 @@ export default {
             user: this.$page.props.auth.user,
             dropdownOpen: false,
             showSuccessModal: false,
+            showTableSuccessModal: false,
         };
     },
     methods: {
@@ -151,6 +154,10 @@ export default {
         handleOrderSuccess() {
             this.showOrderModal = false;
             this.showSuccessModal = true;
+        },
+        handleTableSuccess() {
+            this.showReservationModal = false;
+            this.showTableSuccessModal = true;
         },
     },
 };
