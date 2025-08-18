@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Order;
+use App\Mail\OrderMail;
 use App\Models\Product;
 use App\Models\OrderedItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Notifications\NewOrderNotification;
 
 class OrderController extends Controller
@@ -108,11 +110,18 @@ class OrderController extends Controller
             DB::commit();
 
             $order->load('orderItems');
+            
+            $customMessage = "Your order has been updated successfully.";
+            $subject = "Order Update";
+            $recipientEmail = 'mark.entrina12@gmail.com';
+
+            Mail::to($recipientEmail)->send(new OrderMail($customMessage, $subject, $order));
 
             return response()->json([
                 'result' => true,
                 'message' => 'Order updated successfully.',
             ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
 
