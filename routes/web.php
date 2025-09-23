@@ -9,6 +9,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\NotificationController;
 
@@ -25,13 +26,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Online Ordering
     Route::post('/orderOnline', [OrderController::class, 'orderOnline'])->name('orders.orderOnline');
-
-    // Notifications
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/list', [NotificationController::class, 'list'])->name('notifications.list');
-    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
-    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
-    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
 });
 
 /*
@@ -41,9 +35,8 @@ Route::middleware(['auth'])->group(function () {
 */
 Route::middleware(['auth', 'role:admin|cashier'])->group(function () {
 
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->middleware(['verified'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/generateReport', [DashboardController::class, 'generateReport'])->name('dashboard.generateReport');
 
     // Users
     Route::get('/users', [UserController::class, 'index'])->name('users.index');

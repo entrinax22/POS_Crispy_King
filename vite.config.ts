@@ -1,8 +1,8 @@
+import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
-import path from 'path';
-import tailwindcss from "@tailwindcss/vite";
 import { resolve } from 'node:path';
+import path from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -30,10 +30,10 @@ export default defineConfig({
     },
     server: {
         cors: {
-            origin: 'http://poscrispyking.com',
+            origin: ['http://poscrispyking.com', 'http://127.0.0.1:8000'],
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization'],
-            credentials: true
-        }
+            credentials: true,
+        },
     },
 });

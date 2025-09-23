@@ -3,7 +3,7 @@ import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Bell, BookOpen, Calculator, Folder, LayoutGrid } from 'lucide-vue-next';
+import { BookOpen, Calculator, Folder, LayoutGrid } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -22,7 +22,6 @@ type MainNavItem = {
 const mainNavItems: MainNavItem[] = [
     { title: 'Dashboard', href: route('dashboard'), icon: LayoutGrid, group: 'Main', show: true },
     { title: 'POS Terminal', href: route('pos.index'), icon: Calculator, group: 'Main', show: true },
-    { title: 'Notifications', href: route('notifications.index'), icon: Bell, group: 'Main', show: true },
     { title: 'Users', href: route('users.index'), icon: Calculator, group: 'Admin', show: true },
     { title: 'Roles', href: route('roles.index'), icon: Folder, group: 'Admin', show: true },
     { title: 'Permissions', href: route('permissions.index'), icon: BookOpen, group: 'Admin', show: true },

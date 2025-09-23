@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
 import { useForm } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
 
 const form = useForm({
     name: '',
@@ -20,14 +16,12 @@ const submit = () => {
 </script>
 
 <template>
-    <div class="grid grid-cols-1 md:grid-cols-2 h-screen">
+    <div class="grid h-screen grid-cols-1 md:grid-cols-2">
         <!-- Left Column -->
-        <div class="hidden md:block bg-cover bg-center" style="background-image: url('/CrispyKing.png');">
-            <!-- Add any additional content or leave empty for just the background -->
-        </div>
+        <div class="hidden bg-cover bg-center md:block" style="background-image: url('/CrispyKing.png')"></div>
 
         <!-- Right Column -->
-        <div class="flex items-center justify-center p-8 bg-white">
+        <div class="flex items-center justify-center bg-white p-8">
             <div class="w-full max-w-md space-y-8">
                 <!-- Welcome Message -->
                 <div class="text-center">
@@ -38,73 +32,94 @@ const submit = () => {
                 <!-- Register Form -->
                 <form @submit.prevent="submit" class="flex flex-col gap-6">
                     <div class="grid gap-6">
-                        <!-- Name Input -->
+                        <!-- Name -->
                         <div class="mb-2">
-                            <label for="name" class="block mb-2 text-sm font-medium text-black">Full Name</label>
+                            <label for="name" class="mb-2 block text-sm font-medium text-black"> Full Name </label>
                             <input
                                 type="text"
                                 id="name"
-                                class="bg-white border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                placeholder="John Doe"
                                 v-model="form.name"
                                 required
+                                placeholder="John Doe"
+                                class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-black focus:border-blue-500 focus:ring-blue-500"
                             />
-                            <InputError :message="form.errors.name" />
+                            <p v-if="form.errors.name" class="mt-1 text-sm text-red-500">
+                                {{ form.errors.name }}
+                            </p>
                         </div>
 
-                        <!-- Email Input -->
+                        <!-- Email -->
                         <div class="mb-2">
-                            <label for="email" class="block mb-2 text-sm font-medium text-black">Email address</label>
+                            <label for="email" class="mb-2 block text-sm font-medium text-black"> Email address </label>
                             <input
                                 type="email"
                                 id="email"
-                                class="bg-white border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                placeholder="john.doe@company.com"
                                 v-model="form.email"
                                 required
+                                placeholder="john.doe@company.com"
+                                class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-black focus:border-blue-500 focus:ring-blue-500"
                             />
-                            <InputError :message="form.errors.email" />
+                            <p v-if="form.errors.email" class="mt-1 text-sm text-red-500">
+                                {{ form.errors.email }}
+                            </p>
                         </div>
 
-                        <!-- Password Input -->
+                        <!-- Password -->
                         <div class="mb-2">
-                            <label for="password" class="block mb-2 text-sm font-medium text-black">Password</label>
+                            <label for="password" class="mb-2 block text-sm font-medium text-black"> Password </label>
                             <input
                                 type="password"
                                 id="password"
-                                class="bg-white border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                placeholder="•••••••••"
                                 v-model="form.password"
                                 required
+                                placeholder="•••••••••"
+                                class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-black focus:border-blue-500 focus:ring-blue-500"
                             />
-                            <InputError :message="form.errors.password" />
+                            <p v-if="form.errors.password" class="mt-1 text-sm text-red-500">
+                                {{ form.errors.password }}
+                            </p>
                         </div>
 
-                        <!-- Confirm Password Input -->
+                        <!-- Confirm Password -->
                         <div class="mb-2">
-                            <label for="password_confirmation" class="block mb-2 text-sm font-medium text-black">Confirm Password</label>
+                            <label for="password_confirmation" class="mb-2 block text-sm font-medium text-black"> Confirm Password </label>
                             <input
                                 type="password"
                                 id="password_confirmation"
-                                class="bg-white border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                placeholder="•••••••••"
                                 v-model="form.password_confirmation"
                                 required
+                                placeholder="•••••••••"
+                                class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-black focus:border-blue-500 focus:ring-blue-500"
                             />
-                            <InputError :message="form.errors.password_confirmation" />
+                            <p v-if="form.errors.password_confirmation" class="mt-1 text-sm text-red-500">
+                                {{ form.errors.password_confirmation }}
+                            </p>
                         </div>
 
                         <!-- Submit Button -->
-                        <Button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" :disabled="form.processing">
-                            <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
+                        <button
+                            type="submit"
+                            :disabled="form.processing"
+                            class="flex items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:opacity-50"
+                        >
+                            <svg
+                                v-if="form.processing"
+                                class="mr-2 h-4 w-4 animate-spin"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
                             Create account
-                        </Button>
+                        </button>
                     </div>
 
                     <!-- Log In Link -->
-                    <div class="text-center text-sm text-muted-foreground">
+                    <div class="text-center text-sm text-gray-600">
                         Already have an account?
-                        <TextLink :href="route('login')" :tabindex="6">Log in</TextLink>
+                        <a :href="route('login')" class="font-medium text-blue-600 hover:underline"> Log in </a>
                     </div>
                 </form>
             </div>

@@ -1,9 +1,7 @@
 <template>
     <div class="grid h-screen grid-cols-1 md:grid-cols-2">
         <!-- Left Column -->
-        <div class="hidden bg-cover bg-center md:block" style="background-image: url('/CrispyKing.png')">
-            <!-- Add any additional content or leave empty for just the background -->
-        </div>
+        <div class="hidden bg-cover bg-center md:block" style="background-image: url('/CrispyKing.png')"></div>
 
         <!-- Right Column -->
         <div class="flex items-center justify-center bg-white p-8">
@@ -19,55 +17,72 @@
                     <div class="grid gap-6">
                         <!-- Email Input -->
                         <div class="mb-2">
-                            <label for="email" class="mb-2 block text-sm font-medium text-black">Email address</label>
+                            <label for="email" class="mb-2 block text-sm font-medium text-black"> Email address </label>
                             <input
                                 type="email"
                                 id="email"
-                                class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-black focus:border-blue-500 focus:ring-blue-500"
-                                placeholder="john.doe@company.com"
                                 v-model="form.email"
+                                placeholder="john.doe@company.com"
                                 required
+                                class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-black focus:border-blue-500 focus:ring-blue-500"
                             />
-                            <InputError :message="form.errors.email" />
+                            <p v-if="form.errors.email" class="mt-1 text-sm text-red-500">
+                                {{ form.errors.email }}
+                            </p>
                         </div>
 
                         <!-- Password Input -->
                         <div class="mb-2">
-                            <label for="password" class="mb-2 block text-sm font-medium text-black">Password</label>
+                            <label for="password" class="mb-2 block text-sm font-medium text-black"> Password </label>
                             <input
                                 type="password"
                                 id="password"
-                                class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-black focus:border-blue-500 focus:ring-blue-500"
-                                placeholder="•••••••••"
                                 v-model="form.password"
+                                placeholder="•••••••••"
                                 required
+                                class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-black focus:border-blue-500 focus:ring-blue-500"
                             />
-                            <InputError :message="form.errors.password" />
+                            <p v-if="form.errors.password" class="mt-1 text-sm text-red-500">
+                                {{ form.errors.password }}
+                            </p>
                         </div>
 
-                        <!-- Remember Me Checkbox -->
+                        <!-- Remember Me -->
                         <div class="flex items-center justify-between">
-                            <Label for="remember" class="flex items-center space-x-3">
-                                <Checkbox id="remember" v-model="form.remember" :tabindex="3" />
+                            <label for="remember" class="flex items-center space-x-2">
+                                <input
+                                    id="remember"
+                                    type="checkbox"
+                                    v-model="form.remember"
+                                    class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
                                 <span class="text-black">Remember me</span>
-                            </Label>
+                            </label>
                         </div>
 
                         <!-- Submit Button -->
-                        <Button
-                            type="submit"
-                            class="me-2 mb-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                            :tabindex="4"
-                            :disabled="form.processing"
-                        >
-                            <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                            Log in
-                        </Button>
-
-                        <!-- Google Login Button -->
                         <button
-                            @click="googleLogin"
+                            type="submit"
+                            :disabled="form.processing"
+                            class="flex items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:opacity-50"
+                        >
+                            <svg
+                                v-if="form.processing"
+                                class="mr-2 h-4 w-4 animate-spin"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            Log in
+                        </button>
+
+                        <!-- Google Login -->
+                        <button
                             type="button"
+                            @click="googleLogin"
                             class="flex items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         >
                             <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="h-5 w-5" />
@@ -75,10 +90,10 @@
                         </button>
                     </div>
 
-                    <!-- Sign Up Link -->
-                    <div class="text-muted-foreground text-center text-sm">
-                        Don't have an account?
-                        <TextLink :href="route('register')" :tabindex="5">Sign up</TextLink>
+                    <!-- Sign Up -->
+                    <div class="text-center text-sm text-gray-600">
+                        Don’t have an account?
+                        <a :href="route('register')" class="font-medium text-blue-600 hover:underline"> Sign up </a>
                     </div>
                 </form>
             </div>
@@ -87,12 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useForm } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
 
 defineProps<{
     status?: string;

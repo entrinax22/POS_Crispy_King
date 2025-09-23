@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Order;
 use App\Mail\OrderMail;
@@ -110,10 +111,10 @@ class OrderController extends Controller
             DB::commit();
 
             $order->load('orderItems');
-            
+            $user = User::where('id', $order->user_id)->firstOrFail();
             $customMessage = "Your order has been updated successfully.";
             $subject = "Order Update";
-            $recipientEmail = 'mark.entrina12@gmail.com';
+            $recipientEmail = $user->email;
 
             Mail::to($recipientEmail)->send(new OrderMail($customMessage, $subject, $order));
 
@@ -197,7 +198,7 @@ class OrderController extends Controller
 
 
     public function orderOnline(Request $request)
-    {      
+    {
         $validated = $request->validate([
             'cart' => 'required|array|min:1',
             'cart.*.product_id' => 'required',
@@ -211,16 +212,16 @@ class OrderController extends Controller
             'status' => 'nullable|in:pending,processing,completed,delivered,cancelled',
         ]);
 
-        try{
+        try {
             DB::beginTransaction();
-            
-            // Decrypt all product_ids in the cart
+
+            // 🔓 Decrypt all product_ids in the cart
             foreach ($validated['cart'] as &$item) {
                 $item['product_id'] = decrypt($item['product_id']);
             }
             unset($item);
 
-            // Create a new order (one order per request)
+            // 📝 Create a new order
             $orderId = DB::table('orders')->insertGetId([
                 'user_id' => auth()->id(),
                 'total_amount' => $validated['total_amount'],
@@ -233,15 +234,15 @@ class OrderController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Insert ordered items
+            // 🛒 Insert ordered items
             $orderedItems = [];
             foreach ($validated['cart'] as $item) {
                 $orderedItems[] = [
-                    'order_id' => $orderId,
+                    'order_id'   => $orderId,
                     'product_id' => $item['product_id'],
-                    'quantity' => $item['product_quantity'],
-                    'price' => $item['product_price'],
-                    'total' => $item['product_price'] * $item['product_quantity'],
+                    'quantity'   => $item['product_quantity'],
+                    'price'      => $item['product_price'],
+                    'total'      => $item['product_price'] * $item['product_quantity'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -250,33 +251,33 @@ class OrderController extends Controller
 
             DB::commit();
 
-            $orderId = encrypt($orderId);
-            
-            // Notify the customer
-            $user = Auth::user();
-            $userMessage = "Your order has been placed successfully with the total amount of ₱{$validated['total_amount']}.";
-            $title = 'Your order has been placed';
-            $user->notify(new NewOrderNotification($userMessage, $title, $orderId));
+            // 📦 Load the order with relations for email
+            $order = Order::with(['user', 'orderItems.product'])->findOrFail($orderId);
 
-            // Notify all admins
-            $admins = \App\Models\User::role('admin')->get(); 
-            $title = 'New Order Notification';
-            $adminMessage = "A new order has been placed by {$user->name}.";
+            // 🔒 Encrypt order ID for response
+            $encryptedOrderId = encrypt($orderId);
 
-            foreach ($admins as $admin) {
-                $admin->notify(new NewOrderNotification($adminMessage, $title, $orderId));
-            }
+            // 📧 Notify the customer
+            $customMessage  = "Your order has been submitted successfully.";
+            $subject        = "Order Submitted";
+            $recipientEmail = $order->user->email;
+
+            Mail::to($recipientEmail)->send(new OrderMail($customMessage, $subject, $order));
 
             return response()->json([
-                "result" => true,
-                "message" => "Order created successfully.",
+                "result"   => true,
+                "message"  => "Order created successfully.",
+                "order_id" => $encryptedOrderId,
             ]);
 
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
+            DB::rollBack();
+
             return response()->json([
-                "result" => false,
+                "result"  => false,
                 "message" => $e->getMessage(),
             ], 500);
         }
     }
+
 }
