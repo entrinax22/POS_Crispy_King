@@ -52,7 +52,6 @@ class ProductController extends Controller
                 'message' => 'An error occurred while retrieving products: ' . $e->getMessage(),
             ], 500);
         }
-        
     }
 
 
@@ -147,4 +146,34 @@ class ProductController extends Controller
             'message' => 'Product deleted successfully.',
         ]);
     }
+
+    public function menu()
+    {
+        try {
+            $products = Product::orderByDesc('product_id')->get();
+
+            $data = $products->map(function ($product) {
+                return [
+                    'product_id' => encrypt($product->product_id),
+                    'product_name' => $product->product_name,
+                    'product_description' => $product->product_description,
+                    'product_price' => $product->product_price,
+                    'product_quantity' => $product->product_quantity,
+                    'product_image' => $product->product_image ? asset($product->product_image) : null,
+                ];
+            });
+
+            return response()->json([
+                "result" => true,
+                "data" => $data,
+                "message" => 'Menu retrieved successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'result' => false,
+                'message' => 'An error occurred while fetching the products: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }

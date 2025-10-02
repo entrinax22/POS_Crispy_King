@@ -280,4 +280,43 @@ class OrderController extends Controller
         }
     }
 
+    public function history(Request $request)
+    {
+        try{
+            $user = auth()->user();
+
+            $orders = Order::with(['orderItems.product'])
+                ->where('user_id', $user->id)
+                ->latest()
+                ->get()
+                ->map(function ($order) {
+                    return [
+                        'id' => encrypt($order->order_id), 
+                        'created_at' => $order->created_at,
+                        'total_amount' => $order->total_amount,
+                        'status' => $order->status,
+                        'items' => $order->orderItems->map(function ($item) {
+                            return [
+                                'id' => $item->ordered_item_id,
+                                'product_name' => $item->product->product_name ?? 'Unknown',
+                                'quantity' => $item->quantity,
+                                'price' => $item->price,
+                                'total' => $item->total,
+                                'product_image'=>$item->product->product_image
+                            ];
+                        }),
+                    ];
+                });
+
+            return response()->json([
+                'result' => true,
+                'data' => $orders,
+            ]);
+        }catch (\Exception $e) {
+            return response()->json([
+                "result"  => false,
+                "message" => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

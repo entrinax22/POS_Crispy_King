@@ -55,7 +55,10 @@
                 <template #count="{ index }">
                     {{ products.pagination.per_page * (products.pagination.current_page - 1) + index + 1 }}
                 </template>
-
+                <!-- Product image -->
+                <template #product_image="{ row }">
+                    <img :src="row.product_image" alt="Product Image" class="h-16 w-16 rounded border object-cover" />
+                </template>
                 <template #actions="{ row }">
                     <button
                         class="mr-2 rounded bg-yellow-500 px-3 py-1 font-medium text-white hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-300"
@@ -316,8 +319,8 @@ import { onMounted, ref, watch } from 'vue';
 
 const columns = [
     { label: '#', key: 'count' },
+    { label: 'Product Image', key: 'product_image' },
     { label: 'Product Name', key: 'product_name' },
-    { label: 'Product Code', key: 'product_code' },
     { label: 'Price', key: 'product_price' },
     { label: 'Quantity', key: 'product_quantity' },
     { label: 'Actions', key: 'actions' },

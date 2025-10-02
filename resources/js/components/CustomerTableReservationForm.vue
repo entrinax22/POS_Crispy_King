@@ -58,23 +58,28 @@
 
         <button
             type="submit"
-            class="w-full rounded-full bg-orange-600 px-4 py-2 text-lg font-semibold text-white shadow transition-colors duration-200 hover:bg-orange-700"
+            :disabled="loading"
+            class="flex w-full items-center justify-center rounded-full bg-orange-600 px-4 py-2 text-lg font-semibold text-white shadow transition-colors duration-200 hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-70"
+            aria-busy="loading"
         >
-            Reserve Table
+            <LoaderCircle v-if="loading" :size="18" class="mr-2 text-white" />
+            <span>{{ loading ? 'Reserving...' : 'Reserve Table' }}</span>
         </button>
     </form>
 </template>
-
 <script>
+import LoaderCircle from '@/components/LoaderCircle.vue'; // adjust path if needed
 import { useNotify } from '@/composables/useNotify';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 
 export default {
     name: 'CustomerTableReservationForm',
+    components: { LoaderCircle },
     setup(props, { emit }) {
         const tables = ref([]);
         const notify = useNotify();
+        const loading = ref(false); // <-- loader state
 
         const form = ref({
             table_id: '',
@@ -99,6 +104,7 @@ export default {
         };
 
         const submitReservation = async () => {
+            loading.value = true;
             try {
                 const response = await axios.post(route('tables.reserve'), form.value);
                 if (response.data.result === true) {
@@ -116,6 +122,8 @@ export default {
                 }
             } catch (error) {
                 notify(error.response?.data?.message || 'Error submitting reservation', 'error');
+            } finally {
+                loading.value = false;
             }
         };
 
@@ -125,6 +133,7 @@ export default {
             tables,
             form,
             submitReservation,
+            loading, // return if you want to use it elsewhere
         };
     },
 };

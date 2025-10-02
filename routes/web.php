@@ -97,6 +97,13 @@ Route::middleware(['auth', 'role:admin|customer'])->group(function () {
     Route::get('/', function () {
         return Inertia::render('customers/index');
     })->name('customers.index');
+    Route::get('/orders/customer/history', function () {
+        return Inertia::render('customers/history');
+    })->name('customers.history');
+
+    Route::get('/orders/user/history', [OrderController::class, 'history'])->name('orders.history');
+    Route::get('/products/user/menu', [ProductController::class, 'menu'])->name('products.menu');
+    
 });
 
 /*

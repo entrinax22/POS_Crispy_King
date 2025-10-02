@@ -1,41 +1,52 @@
 <template>
     <section id="menu" class="menu">
         <h2 class="mb-6 text-center text-2xl font-bold text-orange-700">Our Menu</h2>
-        <ul class="menu-list grid gap-6 md:grid-cols-3">
-            <li class="flex flex-col items-center rounded-xl bg-white p-4 shadow-md">
+
+        <!-- Loader -->
+        <div v-if="loading" class="text-center text-gray-500">Loading menu...</div>
+
+        <!-- Empty State -->
+        <div v-else-if="!products.length" class="text-center text-gray-500">No menu items available.</div>
+
+        <!-- Menu List -->
+        <ul v-else class="menu-list grid gap-6 md:grid-cols-3">
+            <li v-for="product in products" :key="product.product_id" class="flex flex-col items-center rounded-xl bg-white p-4 shadow-md">
                 <img
-                    src="/images/chicken.jpeg"
-                    alt="Signature Fried Chicken"
+                    :src="product.product_image"
+                    :alt="product.product_name"
                     class="mb-3 h-24 w-24 rounded-full border-4 border-orange-100 object-cover shadow"
                 />
-                <h3 class="mb-1 text-lg font-bold text-orange-700">Signature Fried Chicken</h3>
-                <p class="text-center text-gray-600">Golden, crispy, and juicy. Served with your choice of sides.</p>
-            </li>
-            <li class="flex flex-col items-center rounded-xl bg-white p-4 shadow-md">
-                <img
-                    src="/images/chicken.jpeg"
-                    alt="Chicken Burger"
-                    class="mb-3 h-24 w-24 rounded-full border-4 border-orange-100 object-cover shadow"
-                />
-                <h3 class="mb-1 text-lg font-bold text-orange-700">Chicken Burger</h3>
-                <p class="text-center text-gray-600">Crunchy chicken fillet, fresh veggies, and our special sauce.</p>
-            </li>
-            <li class="flex flex-col items-center rounded-xl bg-white p-4 shadow-md">
-                <img
-                    src="/images/chicken.jpeg"
-                    alt="Family Meals"
-                    class="mb-3 h-24 w-24 rounded-full border-4 border-orange-100 object-cover shadow"
-                />
-                <h3 class="mb-1 text-lg font-bold text-orange-700">Family Meals</h3>
-                <p class="text-center text-gray-600">Perfect for sharing! Includes chicken, fries, and drinks.</p>
+                <h3 class="mb-1 text-lg font-bold text-orange-700">{{ product.product_name }}</h3>
+                <p class="text-center text-gray-600">{{ product.product_description }}</p>
+                <span class="mt-2 font-semibold text-orange-800">₱{{ product.product_price }}</span>
             </li>
         </ul>
     </section>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     name: 'CustomerMenu',
+    data() {
+        return {
+            products: [],
+            loading: true,
+        };
+    },
+    async mounted() {
+        try {
+            const response = await axios.get('/products/user/menu');
+            if (response.data.result) {
+                this.products = response.data.data;
+            }
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        } finally {
+            this.loading = false;
+        }
+    },
 };
 </script>
 
