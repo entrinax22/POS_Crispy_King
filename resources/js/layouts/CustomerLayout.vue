@@ -11,7 +11,6 @@
             <!-- Desktop Nav -->
             <nav class="hidden items-center space-x-8 md:flex">
                 <a href="/" class="text-lg font-semibold hover:text-orange-700">Home</a>
-                <a href="#menu" class="text-lg font-semibold hover:text-orange-700">Menu</a>
                 <UserDropdown :user="user" @logout="logout" />
                 <button
                     @click.prevent="$emit('reserve')"

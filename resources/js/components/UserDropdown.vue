@@ -13,8 +13,14 @@
             <div class="border-b px-4 py-2 text-sm text-gray-700">
                 {{ truncatedEmail }}
             </div>
+
+            <button @click="profile" class="w-full px-4 py-2 text-left text-sm text-gray-600 hover:bg-yellow-600">My Profile</button>
+
             <button @click="history" class="w-full px-4 py-2 text-left text-sm text-gray-600 hover:bg-yellow-600">My Purchase History</button>
-            <button @click="dashboard" class="w-full px-4 py-2 text-left text-sm text-gray-600 hover:bg-yellow-600">Dashboard</button>
+
+            <!-- ✅ Show Dashboard only if user has admin role -->
+            <button v-if="isAdmin" @click="dashboard" class="w-full px-4 py-2 text-left text-sm text-gray-600 hover:bg-yellow-600">Dashboard</button>
+
             <button @click="logout" class="w-full px-4 py-2 text-left text-sm text-gray-600 hover:bg-yellow-600">Logout</button>
         </div>
     </div>
@@ -38,6 +44,12 @@ export default {
         truncatedEmail() {
             return this.user.email.length > 24 ? this.user.email.slice(0, 21) + '...' : this.user.email;
         },
+
+        // ✅ Computed property that checks if user has admin role (Spatie)
+        isAdmin() {
+            if (!this.user.roles || !Array.isArray(this.user.roles)) return false;
+            return this.user.roles.some((role) => role.name === 'admin');
+        },
     },
     methods: {
         toggleDropdown() {
@@ -45,6 +57,10 @@ export default {
         },
         closeDropdown() {
             this.dropdownOpen = false;
+        },
+        profile() {
+            this.$inertia.get('/my-profile');
+            this.closeDropdown();
         },
         history() {
             this.$inertia.get('/orders/customer/history');

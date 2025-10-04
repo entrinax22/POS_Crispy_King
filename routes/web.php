@@ -11,6 +11,7 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PasswordOtpController;
 use App\Http\Controllers\NotificationController;
 
 /*
@@ -100,7 +101,9 @@ Route::middleware(['auth', 'role:admin|customer'])->group(function () {
     Route::get('/orders/customer/history', function () {
         return Inertia::render('customers/history');
     })->name('customers.history');
-
+    Route::get('/my-profile', function () {
+        return Inertia::render('auth/user/UserDetails');
+    })->name('user.profile');
     Route::get('/orders/user/history', [OrderController::class, 'history'])->name('orders.history');
     Route::get('/products/user/menu', [ProductController::class, 'menu'])->name('products.menu');
     
@@ -114,6 +117,8 @@ Route::middleware(['auth', 'role:admin|customer'])->group(function () {
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
+Route::post('/password/send-otp', [PasswordOtpController::class, 'sendOtp']);
+Route::post('/password/verify-otp', [PasswordOtpController::class, 'verifyOtp']);
 /*
 |--------------------------------------------------------------------------
 | External Route Files
