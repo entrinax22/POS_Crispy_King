@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +19,7 @@ class POSController extends Controller
         try {
             DB::beginTransaction();
 
-            // Validate the request data
+            // ✅ Validate request
             $validated = $request->validate([
                 'cart' => 'required|array|min:1',
                 'cart.*.product_id' => 'required',
@@ -29,13 +30,26 @@ class POSController extends Controller
                 'status' => 'nullable|in:pending,processing,completed,delivered,cancelled',
             ]);
 
-            // Decrypt all product_ids in the cart
+            // 🔓 Decrypt product IDs
             foreach ($validated['cart'] as &$item) {
                 $item['product_id'] = decrypt($item['product_id']);
             }
             unset($item);
 
-            // Create a new order (one order per request)
+            // 🔍 Step 1: Check stock availability
+            foreach ($validated['cart'] as $item) {
+                $product = Product::find($item['product_id']);
+
+                if (!$product) {
+                    throw new \Exception("Product not found.");
+                }
+
+                if ($product->product_quantity < $item['product_quantity']) {
+                    throw new \Exception("Insufficient stock for {$product->product_name}. Available: {$product->product_quantity}");
+                }
+            }
+
+            // 🧾 Step 2: Create the order
             $orderId = DB::table('orders')->insertGetId([
                 'user_id' => auth()->id(),
                 'total_amount' => $validated['total_amount'],
@@ -45,9 +59,14 @@ class POSController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Insert ordered items
+            // 🛒 Step 3: Insert ordered items + deduct stock
             $orderedItems = [];
             foreach ($validated['cart'] as $item) {
+                $product = Product::find($item['product_id']);
+
+                // ✅ Deduct stock
+                $product->decrement('product_quantity', $item['product_quantity']);
+
                 $orderedItems[] = [
                     'order_id' => $orderId,
                     'product_id' => $item['product_id'],
@@ -58,6 +77,7 @@ class POSController extends Controller
                     'updated_at' => now(),
                 ];
             }
+
             DB::table('ordered_items')->insert($orderedItems);
 
             DB::commit();
@@ -75,5 +95,6 @@ class POSController extends Controller
             ], 500);
         }
     }
+
 
 }

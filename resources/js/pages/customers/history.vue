@@ -90,9 +90,9 @@
 
                             <!-- Product Image -->
                             <img
-                                :src="item.product_image ? `/${item.product_image}` : '/images/placeholder.png'"
-                                class="h-12 w-12 rounded border object-cover sm:h-10 sm:w-10"
+                                :src="item.product_image || '/images/placeholder.png'"
                                 :alt="item.product_name"
+                                class="h-16 w-16 rounded-lg object-cover shadow-sm sm:h-20 sm:w-20"
                             />
                         </div>
                     </div>
@@ -128,9 +128,9 @@
                         <tr v-for="item in selectedOrder.items" :key="item.id" class="border-t">
                             <td class="flex items-center gap-2 px-4 py-2">
                                 <img
-                                    :src="item.product_image ? `/${item.product_image}` : '/images/placeholder.png'"
-                                    class="h-8 w-8 rounded border object-cover"
+                                    :src="item.product_image || '/images/placeholder.png'"
                                     :alt="item.product_name"
+                                    class="h-12 w-12 rounded object-cover"
                                 />
                                 <span>{{ item.product_name }}</span>
                             </td>
@@ -144,11 +144,7 @@
                 <!-- Mobile-friendly stacked list -->
                 <div class="space-y-3 sm:hidden">
                     <div v-for="item in selectedOrder.items" :key="item.id" class="flex items-center gap-3 rounded-lg border bg-white p-3 shadow-sm">
-                        <img
-                            :src="item.product_image ? `/${item.product_image}` : '/images/placeholder.png'"
-                            class="h-12 w-12 rounded border object-cover"
-                            :alt="item.product_name"
-                        />
+                        <img :src="item.product_image || '/images/placeholder.png'" :alt="item.product_name" class="h-16 w-16 rounded object-cover" />
                         <div class="flex-1">
                             <p class="font-semibold text-gray-900">{{ item.product_name }}</p>
                             <p class="text-xs text-gray-500">Qty: {{ item.quantity }}</p>
@@ -188,6 +184,7 @@
         </BaseModal>
     </CustomerLayout>
 </template>
+
 <script setup>
 import axios from 'axios';
 import { onMounted, ref } from 'vue';

@@ -88,21 +88,65 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
 
+            // 🔓 Decrypt the order ID
             $orderId = decrypt($validated['order_id']);
             $order = Order::with('orderItems')->findOrFail($orderId);
 
+            // 🧾 Restore stock from previous ordered items
+            foreach ($order->orderItems as $oldItem) {
+                $product = Product::find($oldItem->product_id);
+                if ($product) {
+                    $product->increment('product_quantity', $oldItem->quantity);
+                }
+            }
+
+            // 🚫 Stock Validation for new ordered items
+            $errors = [];
+            foreach ($validated['ordered_items'] as $item) {
+                $productId = decrypt($item['product_id']);
+                $product = Product::find($productId);
+
+                if (!$product) {
+                    $errors[] = "Product not found.";
+                    continue;
+                }
+
+                if ($product->product_quantity < $item['quantity']) {
+                    $errors[] = "Insufficient stock for {$product->product_name}. Available: {$product->product_quantity}";
+                }
+            }
+
+            // ❌ If any product has insufficient stock, rollback and return error
+            if (!empty($errors)) {
+                DB::rollBack();
+                return response()->json([
+                    'result' => false,
+                    'message' => implode(' | ', $errors),
+                ], 400);
+            }
+
+            // ✅ Update order details
             $order->update([
                 'order_type' => $validated['order_type'],
                 'status' => $validated['status'],
                 'total_amount' => $validated['total_amount'],
             ]);
 
+            // 🗑️ Delete old ordered items
             $order->orderItems()->delete();
 
+            // 🛒 Insert new ordered items + deduct stock
             foreach ($validated['ordered_items'] as $item) {
+                $productId = decrypt($item['product_id']);
+                $product = Product::find($productId);
+
+                if ($product) {
+                    $product->decrement('product_quantity', $item['quantity']);
+                }
+
                 OrderedItem::create([
-                    'order_id' => $order->order_id, 
-                    'product_id' => decrypt($item['product_id']),
+                    'order_id' => $order->order_id,
+                    'product_id' => $productId,
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'total' => $item['total'],
@@ -111,13 +155,14 @@ class OrderController extends Controller
 
             DB::commit();
 
+            // 📦 Reload order for email notification
             $order->load('orderItems');
-            $user = User::where('id', $order->user_id)->firstOrFail();
+            $user = User::findOrFail($order->user_id);
+
+            // 📧 Send email notification
             $customMessage = "Your order has been updated successfully.";
             $subject = "Order Update";
-            $recipientEmail = $user->email;
-
-            Mail::to($recipientEmail)->send(new OrderMail($customMessage, $subject, $order));
+            Mail::to($user->email)->send(new OrderMail($customMessage, $subject, $order));
 
             return response()->json([
                 'result' => true,
@@ -216,13 +261,26 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
 
-            // 🔓 Decrypt all product_ids in the cart
+            // 🔓 Decrypt all product_ids
             foreach ($validated['cart'] as &$item) {
                 $item['product_id'] = decrypt($item['product_id']);
             }
             unset($item);
 
-            // 📝 Create a new order
+            // 🔍 Step 1: Check stock availability
+            foreach ($validated['cart'] as $item) {
+                $product = Product::find($item['product_id']);
+
+                if (!$product) {
+                    throw new \Exception("Product not found.");
+                }
+
+                if ($product->product_quantity < $item['product_quantity']) {
+                    throw new \Exception("Insufficient stock for {$product->product_name}. Available: {$product->product_quantity}");
+                }
+            }
+
+            // 📝 Step 2: Create order
             $orderId = DB::table('orders')->insertGetId([
                 'user_id' => auth()->id(),
                 'total_amount' => $validated['total_amount'],
@@ -235,30 +293,36 @@ class OrderController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // 🛒 Insert ordered items
+            // 🛒 Step 3: Insert ordered items + deduct stock
             $orderedItems = [];
             foreach ($validated['cart'] as $item) {
+                $product = Product::find($item['product_id']);
+
+                // ✅ Deduct quantity
+                $product->decrement('product_quantity', $item['product_quantity']);
+
                 $orderedItems[] = [
-                    'order_id'   => $orderId,
+                    'order_id' => $orderId,
                     'product_id' => $item['product_id'],
-                    'quantity'   => $item['product_quantity'],
-                    'price'      => $item['product_price'],
-                    'total'      => $item['product_price'] * $item['product_quantity'],
+                    'quantity' => $item['product_quantity'],
+                    'price' => $item['product_price'],
+                    'total' => $item['product_price'] * $item['product_quantity'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
             }
+
             DB::table('ordered_items')->insert($orderedItems);
 
             DB::commit();
 
-            // 📦 Load the order with relations for email
+            // 📦 Load order with related data
             $order = Order::with(['user', 'orderItems.product'])->findOrFail($orderId);
 
             // 🔒 Encrypt order ID for response
             $encryptedOrderId = encrypt($orderId);
 
-            // 📧 Notify the customer
+            // 📧 Send email notification
             $customMessage  = "Your order has been submitted successfully.";
             $subject        = "Order Submitted";
             $recipientEmail = $order->user->email;
@@ -280,6 +344,7 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
 
     public function history(Request $request)
     {
@@ -339,7 +404,7 @@ class OrderController extends Controller
             }
 
             // Find the order
-            $order = Order::find($orderId);
+            $order = Order::with('orderItems.product')->find($orderId);
 
             if (!$order) {
                 return response()->json([
@@ -356,6 +421,13 @@ class OrderController extends Controller
                 ], 400);
             }
 
+            // 🔄 Restore quantities
+            foreach ($order->orderItems as $item) {
+                if ($item->product) {
+                    $item->product->increment('product_quantity', $item->quantity);
+                }
+            }
+
             // Update order status
             $order->update([
                 'status' => 'cancelled',
@@ -364,7 +436,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'result' => true,
-                'message' => 'Order was cancelled successfully.'
+                'message' => 'Order was cancelled successfully, and stock was restored.'
             ]);
 
         } catch (\Exception $e) {
@@ -374,6 +446,4 @@ class OrderController extends Controller
             ], 500);
         }
     }
-
-
 }
