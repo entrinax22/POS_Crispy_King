@@ -27,6 +27,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Online Ordering
     Route::post('/orderOnline', [OrderController::class, 'orderOnline'])->name('orders.orderOnline');
+    Route::post('/orders/cancel', [OrderController::class, 'cancelOrder'])->name('users.orders.cancel');
 });
 
 /*
@@ -101,9 +102,11 @@ Route::middleware(['auth', 'role:admin|customer'])->group(function () {
     Route::get('/orders/customer/history', function () {
         return Inertia::render('customers/history');
     })->name('customers.history');
+
     Route::get('/my-profile', function () {
         return Inertia::render('auth/user/UserDetails');
     })->name('user.profile');
+
     Route::get('/orders/user/history', [OrderController::class, 'history'])->name('orders.history');
     Route::get('/products/user/menu', [ProductController::class, 'menu'])->name('products.menu');
     

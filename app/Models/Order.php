@@ -13,6 +13,7 @@ class Order extends Model
         'total_amount',
         'status',
         'order_type',
+        'cancelled_at'
     ];
 
     protected $table = 'orders';

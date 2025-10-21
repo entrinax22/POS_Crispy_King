@@ -35,19 +35,20 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($item) {
                 return [
-                    'name' => $item->product->product_name,
+                    'name' => $item->product->product_name ?? 'Unknown Product',
                     'sold' => $item->total_sold,
                 ];
             });
 
         // --- Recent Orders ---
         $recentOrders = Order::latest()
+            ->with('user:id,name,email')
             ->take(5)
-            ->get(['order_id', 'total_amount', 'created_at'])
+            ->get(['order_id', 'user_id', 'total_amount', 'created_at'])
             ->map(function ($order) {
                 return [
                     'id' => $order->order_id,
-                    'customer' => $order->user?->name ?? 'Guest',
+                    'customer' => $order->user->name ?? $order->user->email ?? 'Guest',
                     'total' => '₱' . number_format($order->total_amount, 2),
                     'time' => $order->created_at->format('h:i A'),
                 ];
@@ -55,7 +56,7 @@ class DashboardController extends Controller
 
         // --- Sales Trend (last 7 days) ---
         $salesTrend = Order::where('status', 'Completed')
-            ->whereBetween('created_at', [Carbon::now()->subDays(6), Carbon::now()])
+            ->whereBetween('created_at', [Carbon::now()->subDays(6)->startOfDay(), Carbon::now()->endOfDay()])
             ->get()
             ->groupBy(function ($order) {
                 return Carbon::parse($order->created_at)->format('D');

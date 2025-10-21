@@ -45,10 +45,18 @@ export default {
             return this.user.email.length > 24 ? this.user.email.slice(0, 21) + '...' : this.user.email;
         },
 
-        // ✅ Computed property that checks if user has admin role (Spatie)
         isAdmin() {
-            if (!this.user.roles || !Array.isArray(this.user.roles)) return false;
-            return this.user.roles.some((role) => role.name === 'admin');
+            if (!this.user.roles) return false;
+
+            if (Array.isArray(this.user.roles)) {
+                return this.user.roles.includes('admin');
+            }
+
+            if (typeof this.user.roles === 'object') {
+                return Object.values(this.user.roles).some((role) => role.name === 'admin');
+            }
+
+            return false;
         },
     },
     methods: {

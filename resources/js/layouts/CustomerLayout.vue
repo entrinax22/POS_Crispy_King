@@ -1,4 +1,3 @@
-<!-- CustomerLayout.vue -->
 <template>
     <div class="flex min-h-screen flex-col bg-gradient-to-br from-yellow-50 to-orange-100">
         <!-- Header -->
@@ -13,7 +12,7 @@
                 <a href="/" class="text-lg font-semibold hover:text-orange-700">Home</a>
                 <UserDropdown :user="user" @logout="logout" />
                 <button
-                    @click.prevent="$emit('reserve')"
+                    @click="showReservation = true"
                     class="rounded-full border border-orange-600 bg-white px-4 py-2 text-lg font-semibold text-orange-700 shadow hover:bg-orange-100"
                 >
                     Reserve Table
@@ -36,11 +35,10 @@
             >
                 <a @click="showMobileNav = false" href="/" class="text-lg font-semibold hover:text-orange-700">Home</a>
                 <a @click="showMobileNav = false" href="#menu" class="text-lg font-semibold hover:text-orange-700">Menu</a>
-                <!-- Mobile User Dropdown -->
                 <UserDropdown :user="user" @logout="logout" />
                 <button
-                    @click.prevent="
-                        $emit('reserve');
+                    @click="
+                        showReservation = true;
                         showMobileNav = false;
                     "
                     class="rounded-full border border-orange-600 bg-white px-4 py-2 text-lg font-semibold text-orange-700 shadow hover:bg-orange-100"
@@ -55,6 +53,18 @@
             <slot />
         </main>
 
+        <!-- Reservation Modal -->
+        <transition name="fade">
+            <div v-if="showReservation" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <div class="relative w-[90%] max-w-md rounded-2xl bg-white p-6 shadow-xl">
+                    <button @click="showReservation = false" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">✕</button>
+                    <h2 class="mb-4 text-center text-xl font-semibold text-orange-700">Reserve a Table</h2>
+
+                    <CustomerTableReservationForm @table-success="onReservationSuccess" />
+                </div>
+            </div>
+        </transition>
+
         <!-- Footer -->
         <footer class="mt-auto rounded-t-2xl bg-orange-600 py-6 text-center text-sm tracking-wide text-gray-200 shadow-inner">
             <div class="flex flex-col items-center gap-2">
@@ -66,20 +76,25 @@
 </template>
 
 <script>
+import CustomerTableReservationForm from '../components/CustomerTableReservationForm.vue';
 import UserDropdown from '../components/UserDropdown.vue';
 
 export default {
     name: 'CustomerLayout',
-    components: { UserDropdown },
+    components: { UserDropdown, CustomerTableReservationForm },
     data() {
         return {
             showMobileNav: false,
+            showReservation: false,
             user: this.$page.props.auth.user,
         };
     },
     methods: {
         logout() {
             this.$inertia.post('/logout');
+        },
+        onReservationSuccess() {
+            this.showReservation = false;
         },
     },
 };

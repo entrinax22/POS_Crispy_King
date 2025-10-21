@@ -52,6 +52,14 @@
                                     <p class="text-xs text-gray-500 sm:text-sm">Total</p>
                                     <p class="text-lg font-bold text-orange-600 sm:text-2xl">₱{{ formatAmount(order.total_amount) }}</p>
                                 </div>
+
+                                <button
+                                    v-if="order.status === 'pending'"
+                                    @click.stop="cancelOrder(order.id)"
+                                    class="rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-700 sm:text-sm"
+                                >
+                                    Cancel Order
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -153,53 +161,98 @@
 
             <p class="mt-4 text-right text-base font-semibold sm:text-lg">Total Amount: ₱{{ formatAmount(selectedOrder.total_amount) }}</p>
         </BaseModal>
+
+        <!-- Loading Modal -->
+        <BaseModal v-if="showLoadingModal" @close="showLoadingModal = false">
+            <div class="flex flex-col items-center justify-center p-6">
+                <div class="h-12 w-12 animate-spin rounded-full border-4 border-orange-300 border-t-orange-600"></div>
+                <p class="mt-4 text-sm font-medium text-gray-700">Cancelling your order, please wait...</p>
+            </div>
+        </BaseModal>
+
+        <!-- Success Modal -->
+        <BaseModal v-if="showSuccessModal" @close="showSuccessModal = false">
+            <div class="p-6 text-center">
+                <svg class="mx-auto mb-3 h-12 w-12 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <h3 class="mb-2 text-lg font-semibold text-gray-800">Order Cancelled</h3>
+                <p class="text-sm text-gray-600">{{ successMessage }}</p>
+                <button
+                    @click="showSuccessModal = false"
+                    class="mt-4 rounded bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+                >
+                    Close
+                </button>
+            </div>
+        </BaseModal>
     </CustomerLayout>
 </template>
-
-<script>
+<script setup>
 import axios from 'axios';
+import { onMounted, ref } from 'vue';
 import BaseModal from '../../components/BaseModal.vue';
 import CustomerLayout from '../../layouts/CustomerLayout.vue';
 
-export default {
-    components: {
-        BaseModal,
-        CustomerLayout,
-    },
-    data() {
-        return {
-            orders: [],
-            loading: true,
-            selectedOrder: null,
-        };
-    },
-    methods: {
-        async fetchOrders() {
-            this.loading = true;
-            try {
-                const response = await axios.get('/orders/user/history');
-                this.orders = response.data.data;
-            } catch (error) {
-                console.error('Error fetching orders:', error);
-                this.orders = [];
-            } finally {
-                this.loading = false;
-            }
-        },
-        formatDate(dateStr) {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return new Date(dateStr).toLocaleDateString(undefined, options);
-        },
-        formatAmount(value) {
-            const num = Number(value);
-            return isNaN(num) ? '0.00' : num.toFixed(2);
-        },
-        viewOrder(order) {
-            this.selectedOrder = order;
-        },
-    },
-    mounted() {
-        this.fetchOrders();
-    },
+const orders = ref([]);
+const loading = ref(true);
+const selectedOrder = ref(null);
+const showLoadingModal = ref(false);
+const showSuccessModal = ref(false);
+const successMessage = ref('');
+
+const fetchOrders = async () => {
+    loading.value = true;
+    try {
+        const response = await axios.get('/orders/user/history');
+        orders.value = response.data.data;
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        orders.value = [];
+    } finally {
+        loading.value = false;
+    }
 };
+
+const cancelOrder = async (id) => {
+    if (!confirm('Are you sure you want to cancel this order?')) return;
+
+    showLoadingModal.value = true;
+
+    try {
+        const payload = { order_id: id };
+        const response = await axios.post('/orders/cancel', payload);
+
+        if (response.data.result === true) {
+            successMessage.value = response.data.message;
+            await fetchOrders();
+            showSuccessModal.value = true;
+        } else {
+            notify('Failed to cancel the order.', 'error');
+        }
+    } catch (error) {
+        notify('Order cancellation failed.', 'error');
+    } finally {
+        showLoadingModal.value = false;
+    }
+};
+
+const formatDate = (dateStr) => {
+    return new Date(dateStr).toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+};
+
+const formatAmount = (value) => {
+    const num = Number(value);
+    return isNaN(num) ? '0.00' : num.toFixed(2);
+};
+
+const viewOrder = (order) => {
+    selectedOrder.value = order;
+};
+
+onMounted(fetchOrders);
 </script>

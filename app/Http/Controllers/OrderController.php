@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Notifications\NewOrderNotification;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class OrderController extends Controller
 {
@@ -319,4 +320,60 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
+    public function cancelOrder(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'order_id' => 'required|string'
+            ]);
+
+            // Attempt to decrypt safely
+            try {
+                $orderId = decrypt($validated['order_id']);
+            } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+                return response()->json([
+                    'result' => false,
+                    'message' => 'Invalid order ID.'
+                ], 400);
+            }
+
+            // Find the order
+            $order = Order::find($orderId);
+
+            if (!$order) {
+                return response()->json([
+                    'result' => false,
+                    'message' => 'Order not found.'
+                ], 404);
+            }
+
+            // Prevent cancellation for specific statuses
+            if (in_array($order->status, ['processing', 'completed', 'cancelled', 'delivered'])) {
+                return response()->json([
+                    'result' => false,
+                    'message' => 'This order can no longer be cancelled.'
+                ], 400);
+            }
+
+            // Update order status
+            $order->update([
+                'status' => 'cancelled',
+                'cancelled_at' => now(), // optional column
+            ]);
+
+            return response()->json([
+                'result' => true,
+                'message' => 'Order was cancelled successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'result' => false,
+                'message' => 'An unexpected error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
 }

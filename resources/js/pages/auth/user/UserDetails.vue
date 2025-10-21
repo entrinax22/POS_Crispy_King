@@ -38,8 +38,7 @@
                     <ul class="space-y-3 text-sm text-gray-700">
                         <li><span class="font-semibold">Name:</span> {{ user.name }}</li>
                         <li><span class="font-semibold">Email:</span> {{ user.email }}</li>
-                        <li><span class="font-semibold">Phone:</span> {{ user.phone ?? 'Not set' }}</li>
-                        <li><span class="font-semibold">Role:</span> {{ user.role ?? 'Customer' }}</li>
+                        <li><span class="font-semibold">Role:</span> {{ user.roles.join(', ') ?? 'Customer' }}</li>
                     </ul>
                 </div>
 

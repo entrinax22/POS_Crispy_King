@@ -3,7 +3,7 @@ import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Calculator, Folder, LayoutGrid } from 'lucide-vue-next';
+import { Home, KeyRound, LayoutDashboard, Package, ReceiptText, ShieldHalf, ShoppingCart, Users, UtensilsCrossed } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -20,15 +20,16 @@ type MainNavItem = {
 };
 
 const mainNavItems: MainNavItem[] = [
-    { title: 'Dashboard', href: route('dashboard'), icon: LayoutGrid, group: 'Main', show: true },
-    { title: 'POS Terminal', href: route('pos.index'), icon: Calculator, group: 'Main', show: true },
-    { title: 'Users', href: route('users.index'), icon: Calculator, group: 'Admin', show: true },
-    { title: 'Roles', href: route('roles.index'), icon: Folder, group: 'Admin', show: true },
-    { title: 'Permissions', href: route('permissions.index'), icon: BookOpen, group: 'Admin', show: true },
-    { title: 'Products', href: route('products.index'), icon: BookOpen, group: 'Main', show: true },
-    { title: 'Orders', href: route('orders.index'), icon: BookOpen, group: 'Main', show: true },
-    { title: 'Tables', href: route('tables.index'), icon: BookOpen, group: 'Restaurant', show: true },
-].filter((item) => item.show === undefined || item.show);
+    { title: 'Dashboard', href: route('dashboard'), icon: LayoutDashboard, group: 'Main' },
+    { title: 'POS Terminal', href: route('pos.index'), icon: ShoppingCart, group: 'Main' },
+    { title: 'Homepage', href: route('customers.index'), icon: Home, group: 'Main' },
+    { title: 'Users', href: route('users.index'), icon: Users, group: 'Admin' },
+    { title: 'Roles', href: route('roles.index'), icon: ShieldHalf, group: 'Admin' },
+    { title: 'Permissions', href: route('permissions.index'), icon: KeyRound, group: 'Admin' },
+    { title: 'Products', href: route('products.index'), icon: Package, group: 'Main' },
+    { title: 'Orders', href: route('orders.index'), icon: ReceiptText, group: 'Main' },
+    { title: 'Tables', href: route('tables.index'), icon: UtensilsCrossed, group: 'Restaurant' },
+];
 
 const groupedNavItems = computed(() => {
     return mainNavItems.reduce((acc: Record<string, MainNavItem[]>, item) => {
